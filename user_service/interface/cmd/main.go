@@ -1,13 +1,17 @@
 package main
 
-import "net/http"
+import (
+	"net/http"
+
+	"github.com/Ghytro/go_messenger/lib/loadbalancer"
+	"github.com/Ghytro/go_messenger/user_service/interface/config"
+)
+
+var LoadBalancer = loadbalancer.NewLoadBalancer(config.ConfigParams["worker_addrs"].([]string))
 
 func main() {
-	http.HandleFunc("/create_user", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("Response from create_user"))
-	})
-	http.HandleFunc("/get_token", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("Response from get_token"))
-	})
+	for _, m := range config.ConfigParams["served_methods"].([]string) {
+		http.HandleFunc(m, LoadBalancer.SendRequest)
+	}
 	http.ListenAndServe(":8082", nil)
 }

@@ -82,16 +82,22 @@ func RequestToService(service_addr string, w http.ResponseWriter, r *http.Reques
 
 	// If the access token is given, verify an access token
 	if token, ok := jsonMap["token"]; ok && !validateToken(token.(string)) {
-		httpErrBadRequest(w, "Invalid api token. Check the sent token or try to revoke the token")
+		response.SendResponse(w, response.NewErrorResponse(errors.InvalidAccessTokenError()))
 		return
 	}
 
 	// Routing the query to needed service and returning response
 	adaptedRequest, err := http.NewRequest(r.Method, service_addr+apiMethodName, strings.NewReader(string(reqBodyBytes)))
 	r.Body.Close()
-	handleError(err, w)
+	if err != nil {
+		handleError(err, w)
+		return
+	}
 	response, err := client.Do(adaptedRequest)
-	handleError(err, w)
+	if err != nil {
+		handleError(err, w)
+		return
+	}
 	w.Header().Set("Content-Type", response.Header.Get("Content-Type"))
 	w.Header().Set("Content-Length", response.Header.Get("Content-Length"))
 	w.WriteHeader(response.StatusCode)

@@ -1,0 +1,15 @@
+{
+    "worker_addrs": [
+        "http://localhost:8084",
+        "http://localhost:8085",
+        "http://localhost:8086"
+    ],
+    "served_methods": [
+        "/create_user",
+        "/whoami",
+        "/user_info",
+        "/change_username",
+        "/change_email",
+        "/change_password"
+    ]
+}

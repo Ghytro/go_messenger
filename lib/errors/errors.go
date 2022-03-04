@@ -6,6 +6,14 @@ import (
 	"net/http"
 )
 
+const (
+	NoAccessTokenErrCode = iota + 1
+	InvalidAccessTokenErrCode
+	IncorrectHttpMethodErrCode
+	JsonValidationErrorCode
+	MissingParameterErrorCode
+)
+
 type Error struct {
 	Code           int `json:"code"`
 	httpStatusCode int
@@ -27,15 +35,23 @@ func (e Error) HTTPStatusCode() int {
 
 func NoAccessTokenError() Error {
 	return Error{
-		Code:           1,
+		Code:           NoAccessTokenErrCode,
 		httpStatusCode: http.StatusBadRequest,
 		Message:        "No access token provided to the API. Create if you don't have one or revoke the token.",
 	}
 }
 
+func InvalidAccessTokenError() Error {
+	return Error{
+		Code:           InvalidAccessTokenErrCode,
+		httpStatusCode: http.StatusBadRequest,
+		Message:        "Invalid api token. Check the sent token or try to revoke the token.",
+	}
+}
+
 func IncorrectHttpMethodError(expected string, got string) Error {
 	return Error{
-		Code:           2,
+		Code:           IncorrectHttpMethodErrCode,
 		httpStatusCode: http.StatusBadRequest,
 		Message:        fmt.Sprintf("Incorrect http method. Expected: %s, but got: %s.", expected, got),
 	}
@@ -43,7 +59,7 @@ func IncorrectHttpMethodError(expected string, got string) Error {
 
 func JsonValidationError() Error {
 	return Error{
-		Code:           3,
+		Code:           JsonValidationErrorCode,
 		httpStatusCode: http.StatusBadRequest,
 		Message:        "Excepted JSON encoded data.",
 	}
@@ -51,7 +67,7 @@ func JsonValidationError() Error {
 
 func MissingParameterError(parameter string) Error {
 	return Error{
-		Code:           4,
+		Code:           MissingParameterErrorCode,
 		httpStatusCode: http.StatusBadRequest,
 		Message:        fmt.Sprintf("No required parameters in request: %s", parameter),
 	}

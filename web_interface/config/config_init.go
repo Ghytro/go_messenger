@@ -15,7 +15,7 @@ type HandlerData struct {
 var ConfigParams = make(map[string]interface{})
 
 func init() {
-	confFileBytes, err := os.ReadFile("../config/web_interface_conf.json")
+	confFileBytes, err := os.ReadFile("config.json")
 	if err != nil {
 		log.Fatal(err)
 	}
