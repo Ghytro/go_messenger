@@ -62,7 +62,7 @@ func RequestToService(service_addr string, w http.ResponseWriter, r *http.Reques
 	// After verifying check the required fields
 	jsonMap := make(map[string]interface{})
 	json.Unmarshal(reqBodyBytes, &jsonMap)
-	for _, param := range config.ConfigParams["handler_data"].(map[string]config.HandlerData).RequiredParams {
+	for _, param := range config.ConfigParams["handler_data"].(map[string]config.HandlerData)[apiMethodName].RequiredParams {
 		found := false
 		for k := range jsonMap {
 			if k == param {
