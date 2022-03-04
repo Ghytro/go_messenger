@@ -2,12 +2,13 @@ package adapter
 
 import (
 	"encoding/json"
-	"fmt"
 	"io"
 	"log"
 	"net/http"
 	"strings"
 
+	"github.com/Ghytro/go_messenger/lib/errors"
+	"github.com/Ghytro/go_messenger/lib/response"
 	"github.com/Ghytro/go_messenger/web_interface/config"
 	"github.com/go-redis/redis"
 )
@@ -42,7 +43,7 @@ func RequestToService(service_addr string, w http.ResponseWriter, r *http.Reques
 	// checking the query method
 	apiMethodName := r.URL.Path
 	if m := config.ConfigParams["handler_data"].(map[string]config.HandlerData)[apiMethodName].Method; r.Method != m {
-		httpErrBadRequest(w, fmt.Sprintf("Incorrect http method. Expected: %s, but got: %s", m, r.Method))
+		response.SendResponse(w, response.NewErrorResponse(errors.IncorrectHttpMethodError(m, r.Method)))
 		return
 	}
 
@@ -54,23 +55,27 @@ func RequestToService(service_addr string, w http.ResponseWriter, r *http.Reques
 	// Checking errors
 	// Validating that request body is json encoded
 	if !validateBodyFormat(reqBodyBytes) {
-		httpErrBadRequest(w, "Expected json encoded data")
+		response.SendResponse(w, response.NewErrorResponse(errors.JsonValidationError()))
 		return
 	}
 
 	// After verifying check the required fields
 	jsonMap := make(map[string]interface{})
 	json.Unmarshal(reqBodyBytes, &jsonMap)
-	for _, field := range config.ConfigParams["request_required_fields"].(map[string][]string)[apiMethodName] {
+	for _, param := range config.ConfigParams["handler_data"].(map[string]config.HandlerData).RequiredParams {
 		found := false
 		for k := range jsonMap {
-			if k == field {
+			if k == param {
 				found = true
 				break
 			}
 		}
 		if !found {
-			httpErrBadRequest(w, fmt.Sprintf("No required key in request body: %s", field))
+			if param == "token" {
+				response.SendResponse(w, response.NewErrorResponse(errors.NoAccessTokenError()))
+			} else {
+				response.SendResponse(w, response.NewErrorResponse(errors.MissingParameterError(param)))
+			}
 			return
 		}
 	}

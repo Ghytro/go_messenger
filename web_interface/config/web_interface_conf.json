@@ -1,8 +1,8 @@
 {
-    "chat_service_addr": "localhost:8081",
-    "user_service_addr": "localhost:8082",
-    "file_storage_service_addr": "localhost:8083",
-    "redis_token_validation_addr": "localhost:6379",
+    "chat_service_addr": "http://localhost:8081",
+    "user_service_addr": "http://localhost:8082",
+    "file_storage_service_addr": "http://localhost:8083",
+    "redis_token_validation_addr": "http://localhost:6379",
     "handler_data": {
         "/get_token": {
             "name": "get_token",
