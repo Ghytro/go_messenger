@@ -8,14 +8,14 @@ import (
 	"strings"
 
 	"github.com/Ghytro/go_messenger/lib/errors"
-	"github.com/Ghytro/go_messenger/lib/response"
+	"github.com/Ghytro/go_messenger/lib/requests"
 	"github.com/Ghytro/go_messenger/web_interface/config"
 	"github.com/go-redis/redis"
 )
 
 var client = http.Client{}
 var rdb = redis.NewClient(&redis.Options{
-	Addr:     config.ConfigParams["redis_token_validation_addr"].(string),
+	Addr:     config.Config.RedisTokenValidationAddr,
 	Password: "",
 	DB:       0,
 })
@@ -42,8 +42,9 @@ func httpErrBadRequest(w http.ResponseWriter, errorMessage string) {
 func RequestToService(service_addr string, w http.ResponseWriter, r *http.Request) {
 	// checking the query method
 	apiMethodName := r.URL.Path
-	if m := config.ConfigParams["handler_data"].(map[string]config.HandlerData)[apiMethodName].Method; r.Method != m {
-		response.SendResponse(w, response.NewErrorResponse(errors.IncorrectHttpMethodError(m, r.Method)))
+	handlerData := config.Config.HandlerData(apiMethodName)
+	if m := handlerData.Method; r.Method != m {
+		requests.SendResponse(w, requests.NewErrorResponse(errors.IncorrectHttpMethodError(m, r.Method)))
 		return
 	}
 
@@ -55,14 +56,14 @@ func RequestToService(service_addr string, w http.ResponseWriter, r *http.Reques
 	// Checking errors
 	// Validating that request body is json encoded
 	if !validateBodyFormat(reqBodyBytes) {
-		response.SendResponse(w, response.NewErrorResponse(errors.JsonValidationError()))
+		requests.SendResponse(w, requests.NewErrorResponse(errors.JsonValidationError()))
 		return
 	}
 
 	// After verifying check the required fields
 	jsonMap := make(map[string]interface{})
 	json.Unmarshal(reqBodyBytes, &jsonMap)
-	for _, param := range config.ConfigParams["handler_data"].(map[string]config.HandlerData)[apiMethodName].RequiredParams {
+	for _, param := range handlerData.RequiredParams {
 		found := false
 		for k := range jsonMap {
 			if k == param {
@@ -72,9 +73,9 @@ func RequestToService(service_addr string, w http.ResponseWriter, r *http.Reques
 		}
 		if !found {
 			if param == "token" {
-				response.SendResponse(w, response.NewErrorResponse(errors.NoAccessTokenError()))
+				requests.SendResponse(w, requests.NewErrorResponse(errors.NoAccessTokenError()))
 			} else {
-				response.SendResponse(w, response.NewErrorResponse(errors.MissingParameterError(param)))
+				requests.SendResponse(w, requests.NewErrorResponse(errors.MissingParameterError(param)))
 			}
 			return
 		}
@@ -82,7 +83,7 @@ func RequestToService(service_addr string, w http.ResponseWriter, r *http.Reques
 
 	// If the access token is given, verify an access token
 	if token, ok := jsonMap["token"]; ok && !validateToken(token.(string)) {
-		response.SendResponse(w, response.NewErrorResponse(errors.InvalidAccessTokenError()))
+		requests.SendResponse(w, requests.NewErrorResponse(errors.InvalidAccessTokenError()))
 		return
 	}
 

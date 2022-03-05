@@ -8,11 +8,11 @@ import (
 )
 
 func requestToUserService(w http.ResponseWriter, r *http.Request) {
-	adapter.RequestToService(config.ConfigParams["user_service_addr"].(string), w, r)
+	adapter.RequestToService(config.Config.UserServiceAddr, w, r)
 }
 
 func requestToChatService(w http.ResponseWriter, r *http.Request) {
-	adapter.RequestToService(config.ConfigParams["chat_service_addr"].(string), w, r)
+	adapter.RequestToService(config.Config.ChatServiceAddr, w, r)
 }
 
 func main() {

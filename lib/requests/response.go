@@ -1,4 +1,4 @@
-package response
+package requests
 
 import (
 	"encoding/json"
@@ -35,11 +35,29 @@ func (er ErrorResponse) JsonString() string {
 	return string(er.JsonBytes())
 }
 
-type OKResponse struct {
+type CreateUserResponse struct {
+	httpStatusCode int
+	Token          string `json:"token"`
 }
 
-func NewOKResponse() *OKResponse {
-	return &OKResponse{}
+func NewCreateUserResponse(token string) *CreateUserResponse {
+	r := new(CreateUserResponse)
+	r.httpStatusCode = http.StatusOK
+	r.Token = token
+	return r
+}
+
+func (cu CreateUserResponse) HTTPStatusCode() int {
+	return cu.httpStatusCode
+}
+
+func (cu CreateUserResponse) JsonBytes() []byte {
+	jsonBytes, _ := json.Marshal(cu)
+	return jsonBytes
+}
+
+func (cu CreateUserResponse) JsonString() string {
+	return string(cu.JsonBytes())
 }
 
 func SendResponse(w http.ResponseWriter, r Response) {

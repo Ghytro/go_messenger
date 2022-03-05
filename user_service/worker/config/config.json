@@ -1,0 +1,12 @@
+{
+    "port": 8084,
+    "redis_token_validation_addr": "http://localhost:6379",
+    "served_methods": [
+        "/create_user",
+        "/whoami",
+        "/user_info",
+        "/change_username",
+        "/change_email",
+        "/change_password"
+    ]
+}

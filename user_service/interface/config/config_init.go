@@ -6,24 +6,19 @@ import (
 	"os"
 )
 
-var ConfigParams = make(map[string]interface{})
-
-func jsonArrToStringArr(arr []interface{}) []string {
-	strArr := make([]string, len(arr))
-	for i, v := range arr {
-		strArr[i] = v.(string)
-	}
-	return strArr
+type UserServiceInterfaceConfig struct {
+	WorkerAddrs   []string `json:"worker_addrs"`
+	ServedMethods []string `json:"served_methods"`
 }
+
+var Config = new(UserServiceInterfaceConfig)
 
 func init() {
 	configFileBytes, err := os.ReadFile("config.json")
 	if err != nil {
 		log.Fatal(err)
 	}
-	if err := json.Unmarshal(configFileBytes, &ConfigParams); err != nil {
+	if err := json.Unmarshal(configFileBytes, Config); err != nil {
 		log.Fatal(err)
 	}
-	ConfigParams["worker_addrs"] = jsonArrToStringArr(ConfigParams["worker_addrs"].([]interface{}))
-	ConfigParams["served_methods"] = jsonArrToStringArr(ConfigParams["served_methods"].([]interface{}))
 }

@@ -6,37 +6,42 @@ import (
 	"os"
 )
 
+type WebInterfaceConfig struct {
+	ChatServiceAddr          string        `json:"chat_service_addr"`
+	UserServiceAddr          string        `json:"user_service_addr"`
+	FileStorageServiceAddr   string        `json:"file_storage_service_addr"`
+	RedisTokenValidationAddr string        `json:"redis_token_validation_addr"`
+	Handlers                 []HandlerData `json:"handler_data"`
+}
+
+func (c *WebInterfaceConfig) HandlerData(handlerName string) *HandlerData {
+	if handlerName[0] == '/' {
+		handlerName = handlerName[1:]
+	}
+	for _, m := range c.Handlers {
+		if m.Name == handlerName {
+			return &m
+		}
+	}
+	return nil
+}
+
 type HandlerData struct {
 	Name           string   `json:"name"`
 	Method         string   `json:"method"`
 	RequiredParams []string `json:"required_params"`
 }
 
-var ConfigParams = make(map[string]interface{})
+var Config = new(WebInterfaceConfig)
 
 func init() {
-	confFileBytes, err := os.ReadFile("config.json")
-	if err != nil {
-		log.Fatal(err)
-	}
-	err = json.Unmarshal(confFileBytes, &ConfigParams)
+	confFileBytes, err := os.ReadFile("../config/config.json")
+
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	// Converting interface{} to HandlerData
-	newHandlerData := make(map[string]HandlerData)
-	for k, v := range ConfigParams["handler_data"].(map[string]interface{}) {
-		jsonArray := v.(map[string]interface{})["required_params"].([]interface{})
-		strArray := make([]string, len(jsonArray))
-		for i, val := range jsonArray {
-			strArray[i] = val.(string)
-		}
-		newHandlerData[k] = HandlerData{
-			v.(map[string]interface{})["name"].(string),
-			v.(map[string]interface{})["method"].(string),
-			strArray,
-		}
+	if err = json.Unmarshal(confFileBytes, Config); err != nil {
+		log.Fatal(err)
 	}
-	ConfigParams["handler_data"] = newHandlerData
 }

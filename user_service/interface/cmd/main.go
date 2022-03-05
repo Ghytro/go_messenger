@@ -7,10 +7,10 @@ import (
 	"github.com/Ghytro/go_messenger/user_service/interface/config"
 )
 
-var LoadBalancer = loadbalancer.NewLoadBalancer(config.ConfigParams["worker_addrs"].([]string))
+var LoadBalancer = loadbalancer.NewLoadBalancer(config.Config.WorkerAddrs)
 
 func main() {
-	for _, m := range config.ConfigParams["served_methods"].([]string) {
+	for _, m := range config.Config.ServedMethods {
 		http.HandleFunc(m, LoadBalancer.SendRequest)
 	}
 	http.ListenAndServe(":8082", nil)

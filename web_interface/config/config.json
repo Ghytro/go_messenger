@@ -3,8 +3,8 @@
     "user_service_addr": "http://localhost:8082",
     "file_storage_service_addr": "http://localhost:8083",
     "redis_token_validation_addr": "http://localhost:6379",
-    "handler_data": {
-        "/get_token": {
+    "handler_data": [
+        {
             "name": "get_token",
             "method": "GET",
             "required_params": [
@@ -12,7 +12,7 @@
                 "password"
             ]
         },
-        "/create_user": {
+        {
             "name": "create_user",
             "method": "POST",
             "required_params": [
@@ -21,7 +21,7 @@
                 "password_md5_hash"
             ]
         },
-        "/send_message": {
+        {
             "name": "send_message",
             "method": "POST",
             "required_params": [
@@ -29,12 +29,12 @@
                 "chat_id"
             ]
         },
-        "/whoami": {
+        {
             "name": "whoami",
             "method": "POST",
             "required_params": [
                 "token"
             ]
         }
-    }
+    ]
 }
