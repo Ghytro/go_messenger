@@ -12,6 +12,11 @@ const (
 	IncorrectHttpMethodErrCode
 	JsonValidationErrorCode
 	MissingParameterErrorCode
+	UsernameAlreadyTakenErrorCode
+	IncorrectUsernameErrorCode
+	EmailAlreadyRegisteredErrorCode
+	IncorrectEmailFormatErrorCode
+	IncorrectPasswordMD5HashErrorCode
 )
 
 type Error struct {
@@ -70,5 +75,45 @@ func MissingParameterError(parameter string) Error {
 		Code:           MissingParameterErrorCode,
 		httpStatusCode: http.StatusBadRequest,
 		Message:        fmt.Sprintf("No required parameters in request: %s", parameter),
+	}
+}
+
+func UsernameAlreadyTakenError() Error {
+	return Error{
+		Code:           UsernameAlreadyTakenErrorCode,
+		httpStatusCode: http.StatusBadRequest,
+		Message:        "Username is already taken, try another one.",
+	}
+}
+
+func IncorrectUsernameError() Error {
+	return Error{
+		Code:           UsernameAlreadyTakenErrorCode,
+		httpStatusCode: http.StatusBadRequest,
+		Message:        "Your username doesn't require given limitations: username should have length from 6 to 20 symbols, should not start or end with dots or underscores and have no double underscores or dots inside.",
+	}
+}
+
+func EmailAlreadyRegisteredError() Error {
+	return Error{
+		Code:           EmailAlreadyRegisteredErrorCode,
+		httpStatusCode: http.StatusBadRequest,
+		Message:        "An account is already registered to this email.",
+	}
+}
+
+func IncorrectEmailFormatError() Error {
+	return Error{
+		Code:           IncorrectEmailFormatErrorCode,
+		httpStatusCode: http.StatusBadRequest,
+		Message:        "Your email has incorrect format",
+	}
+}
+
+func IncorrectPasswordMD5HashError() Error {
+	return Error{
+		Code:           IncorrectPasswordMD5HashErrorCode,
+		httpStatusCode: http.StatusBadRequest,
+		Message:        "Incorrect format of MD5 hash.",
 	}
 }
