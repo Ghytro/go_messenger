@@ -9,7 +9,6 @@ import (
 
 	"github.com/Ghytro/go_messenger/lib/errors"
 	"github.com/Ghytro/go_messenger/lib/requests"
-	"github.com/Ghytro/go_messenger/lib/sqlhelpers"
 	"github.com/lib/pq"
 )
 
@@ -33,12 +32,28 @@ func checkMD5HashFormat(hash string) bool {
 	return result
 }
 
+// too dumb for regexp
 func checkUsernameFormat(username string) bool {
-	result, err := regexp.Match("^(?=[a-zA-Z0-9._]{6,20}$)(?!.*[_.]{2})[^_.].*[^_.]$", []byte(username))
-	if err != nil {
-		log.Fatal(err) // debug
+	if len(username) < 6 || len(username) > 20 {
+		return false
 	}
-	return result
+	containsLetters := false
+	for _, c := range username {
+		if c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z' {
+			containsLetters = true
+		} else if (c < '0' || c > '9') && c != '_' {
+			return false
+		}
+	}
+	if !containsLetters {
+		return false
+	}
+	if strings.HasPrefix(username, "_") ||
+		strings.HasSuffix(username, "_") ||
+		strings.Contains(username, "__") {
+		return false
+	}
+	return true
 }
 
 func checkEmailFormat(email string) bool {
@@ -57,12 +72,20 @@ func CreateUser(req *requests.CreateUserRequest) requests.Response {
 		return requests.NewErrorResponse(errors.IncorrectPasswordMD5HashError())
 	}
 	token := generateAccessToken()
-	_, err := sqlhelpers.RunQueryFromFile(userDataDB, "sql/create_user.sql", req.Username, req.Email, req.PasswordMD5Hash, token)
+	_, err := userDataDB.Exec(
+		`INSERT INTO users (username, email, password_md5_hash, access_token)
+		VALUES (?, ?, ?, ?)`,
+		req.Username,
+		req.Email,
+		req.PasswordMD5Hash,
+		token,
+	)
 	for err != nil {
+		log.Println(err) // debug
 		pqErr := err.(*pq.Error)
 		if pqErr.Code == "23505" { // unique constraint violation
 			switch pqErr.Constraint {
-			case "users_pkey":
+			case "users_username_key":
 				return requests.NewErrorResponse(errors.UsernameAlreadyTakenError())
 			case "users_email_key":
 				return requests.NewErrorResponse(errors.EmailAlreadyRegisteredError())
@@ -70,7 +93,14 @@ func CreateUser(req *requests.CreateUserRequest) requests.Response {
 				token = generateAccessToken()
 			}
 		}
-		_, err = sqlhelpers.RunQueryFromFile(userDataDB, "sql/create_user.sql", req.Username, req.Email, req.PasswordMD5Hash, token)
+		_, err = userDataDB.Exec(`
+		INSERT INTO users (username, email, password_md5_hash, access_token)
+		VALUES ($1, $2, $3, $4)`,
+			req.Username,
+			req.Email,
+			req.PasswordMD5Hash,
+			token,
+		)
 	}
 	redisClient.Set(token, req.Username, 0)
 	return requests.NewCreateUserResponse(token)

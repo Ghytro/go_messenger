@@ -4,12 +4,54 @@
         "http://localhost:8085",
         "http://localhost:8086"
     ],
-    "served_methods": [
-        "/create_user",
-        "/whoami",
-        "/user_info",
-        "/change_username",
-        "/change_email",
-        "/change_password"
+    "handler_data": [
+        {
+            "name": "create_user",
+            "method": "POST",
+            "required_params": [
+                "email",
+                "username",
+                "password_md5_hash"
+            ]
+        },
+        {
+            "name": "set_username",
+            "method": "POST",
+            "required_params": [
+                "token",
+                "username"
+            ]
+        },
+        {
+            "name": "set_password",
+            "method": "POST",
+            "required_params": [
+                "token"
+            ]
+        },
+        {
+            "name": "set_avatar_url",
+            "method": "POST",
+            "required_params": [
+                "token",
+                "avatar_url"
+            ]
+        },
+        {
+            "name": "user_info",
+            "method": "POST",
+            "required_params": [
+                "token",
+                "username"
+            ]
+        },
+        {
+            "name": "login",
+            "method": "GET",
+            "required_params": [
+                "username",
+                "password_md5_hash"
+            ]
+        }
     ]
 }

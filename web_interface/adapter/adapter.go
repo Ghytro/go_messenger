@@ -22,7 +22,7 @@ var rdb = redis.NewClient(&redis.Options{
 
 func handleError(err error, w http.ResponseWriter) {
 	if err != nil {
-		log.Print(err)
+		log.Println(err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 }
@@ -35,18 +35,9 @@ func validateBodyFormat(bodyBytes []byte) bool {
 	return json.Valid(bodyBytes)
 }
 
-func httpErrBadRequest(w http.ResponseWriter, errorMessage string) {
-	http.Error(w, errorMessage, http.StatusBadRequest)
-}
-
 func RequestToService(service_addr string, w http.ResponseWriter, r *http.Request) {
 	// checking the query method
 	apiMethodName := r.URL.Path
-	handlerData := config.Config.HandlerData(apiMethodName)
-	if m := handlerData.Method; r.Method != m {
-		requests.SendResponse(w, requests.NewErrorResponse(errors.IncorrectHttpMethodError(m, r.Method)))
-		return
-	}
 
 	// Reading request body to array of bytes
 	reqBodyBytes, err := io.ReadAll(r.Body)
@@ -60,26 +51,8 @@ func RequestToService(service_addr string, w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	// After verifying check the required fields
 	jsonMap := make(map[string]interface{})
 	json.Unmarshal(reqBodyBytes, &jsonMap)
-	for _, param := range handlerData.RequiredParams {
-		found := false
-		for k := range jsonMap {
-			if k == param {
-				found = true
-				break
-			}
-		}
-		if !found {
-			if param == "token" {
-				requests.SendResponse(w, requests.NewErrorResponse(errors.NoAccessTokenError()))
-			} else {
-				requests.SendResponse(w, requests.NewErrorResponse(errors.MissingParameterError(param)))
-			}
-			return
-		}
-	}
 
 	// If the access token is given, verify an access token
 	if token, ok := jsonMap["token"]; ok && !validateToken(token.(string)) {

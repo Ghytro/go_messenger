@@ -35,20 +35,38 @@ func (er ErrorResponse) JsonString() string {
 	return string(er.JsonBytes())
 }
 
-type CreateUserResponse struct {
+type EmptyResponse struct {
 	httpStatusCode int
-	Token          string `json:"token"`
+}
+
+func NewEmptyResponse(statusCode int) *EmptyResponse {
+	return &EmptyResponse{statusCode}
+}
+
+func (er EmptyResponse) HTTPStatusCode() int {
+	return er.httpStatusCode
+}
+
+func (er EmptyResponse) JsonBytes() []byte {
+	return []byte(er.JsonString())
+}
+
+func (er EmptyResponse) JsonString() string {
+	return ""
+}
+
+type CreateUserResponse struct {
+	Token string `json:"token"`
 }
 
 func NewCreateUserResponse(token string) *CreateUserResponse {
 	r := new(CreateUserResponse)
-	r.httpStatusCode = http.StatusOK
 	r.Token = token
 	return r
 }
 
 func (cu CreateUserResponse) HTTPStatusCode() int {
-	return cu.httpStatusCode
+	return http.StatusOK
 }
 
 func (cu CreateUserResponse) JsonBytes() []byte {
@@ -58,6 +76,29 @@ func (cu CreateUserResponse) JsonBytes() []byte {
 
 func (cu CreateUserResponse) JsonString() string {
 	return string(cu.JsonBytes())
+}
+
+type LogInResponse struct {
+	Token string `json:"token"`
+}
+
+func (cu LogInResponse) HTTPStatusCode() int {
+	return http.StatusOK
+}
+
+func (cu LogInResponse) JsonBytes() []byte {
+	jsonBytes, _ := json.Marshal(cu)
+	return jsonBytes
+}
+
+func (cu LogInResponse) JsonString() string {
+	return string(cu.JsonBytes())
+}
+
+type UserInfoResponse struct {
+	Username  string `json:"username"`
+	Email     string `json:"email"`
+	AvatarUrl string `json:"avatar_url"`
 }
 
 func SendResponse(w http.ResponseWriter, r Response) {

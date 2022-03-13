@@ -15,6 +15,16 @@ func HandleRequest(w http.ResponseWriter, r *http.Request) {
 	switch r.URL.Path {
 	case "/create_user":
 		response = user_actions.CreateUser(requests.NewCreateUserRequest(bodyBytes))
+	case "/set_username":
+		response = user_actions.SetUsername(requests.NewSetUsernameRequest(bodyBytes))
+	case "/set_password":
+		response = user_actions.SetPassword(requests.NewSetPasswordRequest(bodyBytes))
+	case "/set_avatar_url":
+		response = user_actions.SetAvatarUrl(requests.NewSetAvatarUrlRequest(bodyBytes))
+	case "/user_info":
+		response = user_actions.UserInfo(requests.NewUserInfoRequest(bodyBytes))
+	case "/login":
+		response = user_actions.LogIn(requests.NewLogInRequest(bodyBytes))
 	}
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(response.HTTPStatusCode())
