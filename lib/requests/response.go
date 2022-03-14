@@ -82,25 +82,40 @@ type LogInResponse struct {
 	Token string `json:"token"`
 }
 
-func (cu LogInResponse) HTTPStatusCode() int {
+func (lr LogInResponse) HTTPStatusCode() int {
 	return http.StatusOK
 }
 
-func (cu LogInResponse) JsonBytes() []byte {
-	jsonBytes, _ := json.Marshal(cu)
+func (lr LogInResponse) JsonBytes() []byte {
+	jsonBytes, _ := json.Marshal(lr)
 	return jsonBytes
 }
 
-func (cu LogInResponse) JsonString() string {
-	return string(cu.JsonBytes())
+func (lr LogInResponse) JsonString() string {
+	return string(lr.JsonBytes())
 }
 
 type UserInfoResponse struct {
 	Username  string `json:"username"`
 	Email     string `json:"email"`
 	AvatarUrl string `json:"avatar_url"`
+	Bio       string `json:"bio"`
+}
+
+func (ur UserInfoResponse) HTTPStatusCode() int {
+	return http.StatusOK
+}
+
+func (ur UserInfoResponse) JsonBytes() []byte {
+	jsonBytes, _ := json.Marshal(ur)
+	return jsonBytes
+}
+
+func (ur UserInfoResponse) JsonString() string {
+	return string(ur.JsonBytes())
 }
 
 func SendResponse(w http.ResponseWriter, r Response) {
-	http.Error(w, r.JsonString(), r.HTTPStatusCode())
+	w.WriteHeader(r.HTTPStatusCode())
+	w.Write(r.JsonBytes())
 }

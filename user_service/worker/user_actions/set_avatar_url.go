@@ -1,5 +1,31 @@
 package user_actions
 
-func SetAvatarUrl(req *requests.SetAvatarRequest) requests.Response {
+import (
+	"log"
+	"net/http"
+	"net/url"
 
+	"github.com/Ghytro/go_messenger/lib/errors"
+	"github.com/Ghytro/go_messenger/lib/requests"
+)
+
+func validateUri(uri string) bool {
+	_, err := url.ParseRequestURI(uri)
+	return err == nil && len(uri) <= 2048
+}
+
+func SetAvatarUrl(req *requests.SetAvatarUrlRequest) requests.Response {
+	if !checkUsernameFormat(req.Username) {
+		return requests.NewErrorResponse(errors.IncorrectUsernameError())
+	}
+	_, err := userDataDB.Exec(
+		"UPDATE users SET avatar_url = $1 WHERE access_token = $2",
+		req.AvatarUrl,
+		req.Token,
+	)
+	if err != nil {
+		log.Println(err) // debug
+		return requests.NewEmptyResponse(http.StatusInternalServerError)
+	}
+	return requests.NewEmptyResponse(http.StatusOK)
 }

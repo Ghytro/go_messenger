@@ -108,3 +108,28 @@ func (r *LogInRequest) JsonBytes() []byte {
 func (r *LogInRequest) JsonString() string {
 	return string(r.JsonBytes())
 }
+
+type SetEmailRequest struct {
+	Email string `json:"email"`
+	Token string `json:"token"`
+}
+
+func NewSetEmailRequest(jsonBytes []byte) *SetEmailRequest {
+	r := new(SetEmailRequest)
+	json.Unmarshal(jsonBytes, r)
+	return r
+}
+
+func (r *SetEmailRequest) JsonBytes() []byte {
+	jsonBytes, _ := json.Marshal(*r)
+	return jsonBytes
+}
+
+func (r *SetEmailRequest) JsonString() string {
+	return string(r.JsonBytes())
+}
+
+type UserInfoRequest struct {
+	Token    string `json:"token"`
+	Username string `json:"username"`
+}
