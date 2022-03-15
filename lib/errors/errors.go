@@ -17,6 +17,9 @@ const (
 	EmailAlreadyRegisteredErrorCode
 	IncorrectEmailFormatErrorCode
 	IncorrectPasswordMD5HashErrorCode
+	OldPasswordsDoesntMatchErrorCode
+	UserDoesntExistErrorCode
+	WrongPasswordErrorCode
 )
 
 type Error struct {
@@ -115,5 +118,29 @@ func IncorrectPasswordMD5HashError() Error {
 		Code:           IncorrectPasswordMD5HashErrorCode,
 		httpStatusCode: http.StatusBadRequest,
 		Message:        "Incorrect format of MD5 hash.",
+	}
+}
+
+func OldPasswordsDoesntMatchError() Error {
+	return Error{
+		Code:           OldPasswordsDoesntMatchErrorCode,
+		httpStatusCode: http.StatusBadRequest,
+		Message:        "MD5 hash of old password in request doesnt match to the actual one.",
+	}
+}
+
+func UserDoesntExistError() Error {
+	return Error{
+		Code:           UserDoesntExistErrorCode,
+		httpStatusCode: http.StatusBadRequest,
+		Message:        "No such user exists. Check the correctness of data in query.",
+	}
+}
+
+func WrongPasswordError() Error {
+	return Error{
+		Code:           WrongPasswordErrorCode,
+		httpStatusCode: http.StatusBadRequest,
+		Message:        "Wrong password.",
 	}
 }

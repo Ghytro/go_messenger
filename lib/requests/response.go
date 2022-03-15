@@ -82,6 +82,10 @@ type LogInResponse struct {
 	Token string `json:"token"`
 }
 
+func NewLogInResponse(token string) *LogInResponse {
+	return &LogInResponse{token}
+}
+
 func (lr LogInResponse) HTTPStatusCode() int {
 	return http.StatusOK
 }

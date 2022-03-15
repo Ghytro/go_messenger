@@ -1,6 +1,7 @@
 package user_actions
 
 import (
+	"database/sql"
 	"log"
 	"net/http"
 
@@ -10,6 +11,9 @@ import (
 func UserInfo(req *requests.UserInfoRequest) requests.Response {
 	row := userDataDB.QueryRow("SELECT username, email, bio, avatar_url FROM users WHERE username = $1", req.Username)
 	if row.Err() != nil {
+		if row.Err() == sql.ErrNoRows {
+			return requests.NewErrorResponse(errors.UserDoesntExistError())
+		}
 		log.Fatal(row.Err())
 		return requests.NewEmptyResponse(http.StatusInternalServerError)
 	}
