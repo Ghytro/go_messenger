@@ -1,8 +1,6 @@
 {
     "worker_addrs": [
-        "http://localhost:8084",
-        "http://localhost:8085",
-        "http://localhost:8086"
+        "http://localhost:8084"
     ],
     "handler_data": [
         {
@@ -39,7 +37,7 @@
         },
         {
             "name": "user_info",
-            "method": "POST",
+            "method": "GET",
             "required_params": [
                 "token",
                 "username"

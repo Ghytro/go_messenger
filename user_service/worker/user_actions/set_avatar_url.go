@@ -14,8 +14,9 @@ func validateUri(uri string) bool {
 	return err == nil && len(uri) <= 2048
 }
 
-func SetAvatarUrl(req *requests.SetAvatarUrlRequest) requests.Response {
-	if !checkUsernameFormat(req.Username) {
+func SetAvatarUrl(setAvatarUrlRequest requests.Request) requests.Response {
+	req := setAvatarUrlRequest.(*requests.SetAvatarUrlRequest)
+	if !validateUri(req.AvatarUrl) {
 		return requests.NewErrorResponse(errors.IncorrectUsernameError())
 	}
 	_, err := userDataDB.Exec(

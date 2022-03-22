@@ -4,7 +4,6 @@ import (
 	"log"
 	"math/rand"
 	"net/mail"
-	"regexp"
 	"strings"
 
 	"github.com/Ghytro/go_messenger/lib/errors"
@@ -19,17 +18,21 @@ const accessTokenLength = 50
 func generateAccessToken() string {
 	var tokenBuilder strings.Builder
 	for i := 0; i < accessTokenLength; i++ {
-		tokenBuilder.WriteByte(allowedTokenSymbols[rand.Int31n(accessTokenLength)])
+		tokenBuilder.WriteByte(allowedTokenSymbols[rand.Int31n(int32(len(allowedTokenSymbols)))])
 	}
 	return tokenBuilder.String()
 }
 
 func checkMD5HashFormat(hash string) bool {
-	result, err := regexp.Match("/^[a-f0-9]{32}$/i", []byte(hash))
-	if err != nil {
-		log.Fatal(err) // debug
+	if len(hash) != 32 {
+		return false
 	}
-	return result
+	for _, c := range hash {
+		if !(c >= '0' && c <= '9' || c >= 'a' && c <= 'f') {
+			return false
+		}
+	}
+	return true
 }
 
 // too dumb for regexp
@@ -61,7 +64,8 @@ func checkEmailFormat(email string) bool {
 	return err == nil && len(email) <= 320 // the length of email address is defined by international standart
 }
 
-func CreateUser(req *requests.CreateUserRequest) requests.Response {
+func CreateUser(createUserRequest requests.Request) requests.Response {
+	req := createUserRequest.(*requests.CreateUserRequest)
 	if !checkUsernameFormat(req.Username) {
 		return requests.NewErrorResponse(errors.IncorrectUsernameError())
 	}
@@ -74,7 +78,7 @@ func CreateUser(req *requests.CreateUserRequest) requests.Response {
 	token := generateAccessToken()
 	_, err := userDataDB.Exec(
 		`INSERT INTO users (username, email, password_md5_hash, access_token)
-		VALUES (?, ?, ?, ?)`,
+		VALUES ($1, $2, $3, $4)`,
 		req.Username,
 		req.Email,
 		req.PasswordMD5Hash,

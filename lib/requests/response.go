@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/Ghytro/go_messenger/lib/errors"
+	"github.com/Ghytro/go_messenger/lib/jsonhelpers"
 )
 
 type Response interface {
@@ -100,10 +101,10 @@ func (lr LogInResponse) JsonString() string {
 }
 
 type UserInfoResponse struct {
-	Username  string `json:"username"`
-	Email     string `json:"email"`
-	AvatarUrl string `json:"avatar_url"`
-	Bio       string `json:"bio"`
+	Username  string                 `json:"username"`
+	Email     string                 `json:"email"`
+	AvatarUrl jsonhelpers.NullString `json:"avatar_url"`
+	Bio       jsonhelpers.NullString `json:"bio"`
 }
 
 func (ur UserInfoResponse) HTTPStatusCode() int {

@@ -7,10 +7,12 @@ import (
 )
 
 type WebInterfaceConfig struct {
-	ChatServiceAddr          string `json:"chat_service_addr"`
-	UserServiceAddr          string `json:"user_service_addr"`
-	FileStorageServiceAddr   string `json:"file_storage_service_addr"`
-	RedisTokenValidationAddr string `json:"redis_token_validation_addr"`
+	MessageServiceAddr       string   `json:"message_service_addr"`
+	UserServiceAddr          string   `json:"user_service_addr"`
+	UserServiceMethods       []string `json:"user_service_methods"`
+	MessageServiceMethods    []string `json:"message_service_methods"`
+	FileStorageServiceAddr   string   `json:"file_storage_service_addr"`
+	RedisTokenValidationAddr string   `json:"redis_token_validation_addr"`
 }
 
 var Config = new(WebInterfaceConfig)

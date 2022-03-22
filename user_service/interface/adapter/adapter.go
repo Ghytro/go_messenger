@@ -5,11 +5,12 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"strings"
 
 	"github.com/Ghytro/go_messenger/lib/errors"
 	"github.com/Ghytro/go_messenger/lib/loadbalancer"
 	"github.com/Ghytro/go_messenger/lib/requests"
-	"github.com/Ghytro/go_messenger/user_service/config"
+	"github.com/Ghytro/go_messenger/user_service/interface/config"
 )
 
 var loadBalancer = loadbalancer.NewLoadBalancer(config.Config.WorkerAddrs)
@@ -33,7 +34,6 @@ func SendRequest(w http.ResponseWriter, r *http.Request) {
 
 	reqBodyBytes, err := io.ReadAll(r.Body)
 	handleError(err, w)
-	r.Body.Close()
 
 	// verifying that we have all the necessary parameters
 	jsonMap := make(map[string]interface{})
@@ -55,7 +55,6 @@ func SendRequest(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
-
 	// sending request to worker
-	loadBalancer.SendRequest(w, r)
+	loadBalancer.SendRequest(w, r.Method, apiMethodName, strings.NewReader(string(reqBodyBytes)))
 }

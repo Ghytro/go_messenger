@@ -93,7 +93,7 @@ func IncorrectUsernameError() Error {
 	return Error{
 		Code:           UsernameAlreadyTakenErrorCode,
 		httpStatusCode: http.StatusBadRequest,
-		Message:        "Your username doesn't require given limitations: username should have length from 6 to 20 symbols, should not start or end with dots or underscores and have no double underscores or dots inside.",
+		Message:        "Your username doesn't require given limitations: username should have length from 6 to 20 symbols, should not start or end with underscores, have double underscores or contain symbols except english characters, digits or underscores.",
 	}
 }
 

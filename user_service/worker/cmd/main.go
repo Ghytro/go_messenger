@@ -9,8 +9,8 @@ import (
 )
 
 func main() {
-	for _, h := range config.Config.ServedMethods {
-		http.HandleFunc(h, handler.HandleRequest)
+	for handUrl := range handler.HandlerMap {
+		http.HandleFunc(handUrl, handler.HandleRequest)
 	}
 	http.ListenAndServe(fmt.Sprintf(":%d", config.Config.Port), nil)
 }

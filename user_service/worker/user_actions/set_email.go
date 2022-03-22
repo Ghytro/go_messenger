@@ -8,7 +8,8 @@ import (
 	"github.com/Ghytro/go_messenger/lib/requests"
 )
 
-func SetEmail(req *requests.SetEmailRequest) requests.Response {
+func SetEmail(setEmailRequest requests.Request) requests.Response {
+	req := setEmailRequest.(*requests.SetEmailRequest)
 	if !checkEmailFormat(req.Email) {
 		return requests.NewErrorResponse(errors.IncorrectEmailFormatError())
 	}

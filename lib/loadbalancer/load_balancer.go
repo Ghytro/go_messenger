@@ -68,14 +68,12 @@ func handleError(err error, w http.ResponseWriter) {
 	}
 }
 
-func (lb *LoadBalancer) SendRequest(w http.ResponseWriter, r *http.Request) {
-	apiMethod := r.URL.Path
-	adaptedRequest, err := http.NewRequest(r.Method, lb.workerAddrs[lb.counter.Inc()]+apiMethod, r.Body)
+func (lb *LoadBalancer) SendRequest(w http.ResponseWriter, httpMethod string, apiMethod string, requestBody io.Reader) {
+	adaptedRequest, err := http.NewRequest(httpMethod, lb.workerAddrs[lb.counter.Inc()]+apiMethod, requestBody)
 	if err != nil {
 		handleError(err, w)
 		return
 	}
-	r.Body.Close()
 	response, err := lb.client.Do(adaptedRequest)
 	if err != nil {
 		handleError(err, w)

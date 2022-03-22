@@ -9,7 +9,8 @@ import (
 	"github.com/lib/pq"
 )
 
-func SetUsername(req *requests.SetUsernameRequest) requests.Response {
+func SetUsername(setUsernameRequest requests.Request) requests.Response {
+	req := setUsernameRequest.(*requests.SetUsernameRequest)
 	if !checkUsernameFormat(req.Username) {
 		return requests.NewErrorResponse(errors.IncorrectUsernameError())
 	}

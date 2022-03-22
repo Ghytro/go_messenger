@@ -133,3 +133,18 @@ type UserInfoRequest struct {
 	Token    string `json:"token"`
 	Username string `json:"username"`
 }
+
+func NewUserInfoRequest(jsonBytes []byte) *UserInfoRequest {
+	r := new(UserInfoRequest)
+	json.Unmarshal(jsonBytes, r)
+	return r
+}
+
+func (r *UserInfoRequest) JsonBytes() []byte {
+	jsonBytes, _ := json.Marshal(*r)
+	return jsonBytes
+}
+
+func (r *UserInfoRequest) JsonString() string {
+	return string(r.JsonBytes())
+}

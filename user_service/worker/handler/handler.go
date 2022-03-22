@@ -8,24 +8,44 @@ import (
 	"github.com/Ghytro/go_messenger/user_service/worker/user_actions"
 )
 
+var HandlerMap = map[string]func(requests.Request) requests.Response{
+	"/create_user":    user_actions.CreateUser,
+	"/set_username":   user_actions.SetUsername,
+	"/set_password":   user_actions.SetPassword,
+	"/set_avatar_url": user_actions.SetAvatarUrl,
+	"/user_info":      user_actions.UserInfo,
+	"/set_email":      user_actions.SetEmail,
+	"/login":          user_actions.LogIn,
+}
+
+var RequestGeneratorMap = map[string]func([]byte) requests.Request{
+	"/create_user": func(jb []byte) requests.Request {
+		return requests.NewCreateUserRequest(jb)
+	},
+	"/set_username": func(jb []byte) requests.Request {
+		return requests.NewSetUsernameRequest(jb)
+	},
+	"/set_password": func(jb []byte) requests.Request {
+		return requests.NewSetPasswordRequest(jb)
+	},
+	"/set_avatar_url": func(jb []byte) requests.Request {
+		return requests.NewSetAvatarUrlRequest(jb)
+	},
+	"/user_info": func(jb []byte) requests.Request {
+		return requests.NewUserInfoRequest(jb)
+	},
+	"/set_email": func(jb []byte) requests.Request {
+		return requests.NewSetEmailRequest(jb)
+	},
+	"/login": func(jb []byte) requests.Request {
+		return requests.NewLogInRequest(jb)
+	},
+}
+
 func HandleRequest(w http.ResponseWriter, r *http.Request) {
 	bodyBytes, _ := io.ReadAll(r.Body)
 	r.Body.Close()
-	var response requests.Response
-	switch r.URL.Path {
-	case "/create_user":
-		response = user_actions.CreateUser(requests.NewCreateUserRequest(bodyBytes))
-	case "/set_username":
-		response = user_actions.SetUsername(requests.NewSetUsernameRequest(bodyBytes))
-	case "/set_password":
-		response = user_actions.SetPassword(requests.NewSetPasswordRequest(bodyBytes))
-	case "/set_avatar_url":
-		response = user_actions.SetAvatarUrl(requests.NewSetAvatarUrlRequest(bodyBytes))
-	case "/user_info":
-		response = user_actions.UserInfo(requests.NewUserInfoRequest(bodyBytes))
-	case "/login":
-		response = user_actions.LogIn(requests.NewLogInRequest(bodyBytes))
-	}
+	response := HandlerMap[r.URL.Path](RequestGeneratorMap[r.URL.Path](bodyBytes))
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(response.HTTPStatusCode())
 	w.Write(response.JsonBytes())

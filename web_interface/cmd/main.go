@@ -11,16 +11,16 @@ func requestToUserService(w http.ResponseWriter, r *http.Request) {
 	adapter.RequestToService(config.Config.UserServiceAddr, w, r)
 }
 
-func requestToChatService(w http.ResponseWriter, r *http.Request) {
-	adapter.RequestToService(config.Config.ChatServiceAddr, w, r)
+func requestToMessageService(w http.ResponseWriter, r *http.Request) {
+	adapter.RequestToService(config.Config.MessageServiceAddr, w, r)
 }
 
 func main() {
-	http.HandleFunc("/get_token", requestToUserService)
-	http.HandleFunc("/revoke_token", requestToUserService)
-	http.HandleFunc("/create_user", requestToUserService)
-	http.HandleFunc("/whoami", requestToUserService)
-	http.HandleFunc("/create_chat", requestToChatService)
-	http.HandleFunc("/send_message", requestToChatService)
+	for _, m := range config.Config.UserServiceMethods {
+		http.HandleFunc(m, requestToUserService)
+	}
+	for _, m := range config.Config.MessageServiceMethods {
+		http.HandleFunc(m, requestToMessageService)
+	}
 	http.ListenAndServe(":8080", nil)
 }

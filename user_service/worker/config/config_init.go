@@ -14,7 +14,7 @@ type UserServiceWorkerConfig struct {
 var Config = new(UserServiceWorkerConfig)
 
 func init() {
-	confFileBytes, err := os.ReadFile("config.json")
+	confFileBytes, err := os.ReadFile("../config/config.json")
 
 	if err != nil {
 		log.Fatal(err)
