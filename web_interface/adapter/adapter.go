@@ -8,21 +8,21 @@ import (
 	"strings"
 
 	"github.com/Ghytro/go_messenger/lib/errors"
-	"github.com/Ghytro/go_messenger/lib/response"
+	"github.com/Ghytro/go_messenger/lib/requests"
 	"github.com/Ghytro/go_messenger/web_interface/config"
 	"github.com/go-redis/redis"
 )
 
 var client = http.Client{}
 var rdb = redis.NewClient(&redis.Options{
-	Addr:     config.ConfigParams["redis_token_validation_addr"].(string),
+	Addr:     config.Config.RedisTokenValidationAddr,
 	Password: "",
 	DB:       0,
 })
 
 func handleError(err error, w http.ResponseWriter) {
 	if err != nil {
-		log.Print(err)
+		log.Println(err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 }
@@ -35,17 +35,9 @@ func validateBodyFormat(bodyBytes []byte) bool {
 	return json.Valid(bodyBytes)
 }
 
-func httpErrBadRequest(w http.ResponseWriter, errorMessage string) {
-	http.Error(w, errorMessage, http.StatusBadRequest)
-}
-
 func RequestToService(service_addr string, w http.ResponseWriter, r *http.Request) {
 	// checking the query method
 	apiMethodName := r.URL.Path
-	if m := config.ConfigParams["handler_data"].(map[string]config.HandlerData)[apiMethodName].Method; r.Method != m {
-		response.SendResponse(w, response.NewErrorResponse(errors.IncorrectHttpMethodError(m, r.Method)))
-		return
-	}
 
 	// Reading request body to array of bytes
 	reqBodyBytes, err := io.ReadAll(r.Body)
@@ -55,43 +47,31 @@ func RequestToService(service_addr string, w http.ResponseWriter, r *http.Reques
 	// Checking errors
 	// Validating that request body is json encoded
 	if !validateBodyFormat(reqBodyBytes) {
-		response.SendResponse(w, response.NewErrorResponse(errors.JsonValidationError()))
+		requests.SendResponse(w, requests.NewErrorResponse(errors.JsonValidationError()))
 		return
 	}
 
-	// After verifying check the required fields
 	jsonMap := make(map[string]interface{})
 	json.Unmarshal(reqBodyBytes, &jsonMap)
-	for _, param := range config.ConfigParams["handler_data"].(map[string]config.HandlerData)[apiMethodName].RequiredParams {
-		found := false
-		for k := range jsonMap {
-			if k == param {
-				found = true
-				break
-			}
-		}
-		if !found {
-			if param == "token" {
-				response.SendResponse(w, response.NewErrorResponse(errors.NoAccessTokenError()))
-			} else {
-				response.SendResponse(w, response.NewErrorResponse(errors.MissingParameterError(param)))
-			}
-			return
-		}
-	}
 
 	// If the access token is given, verify an access token
 	if token, ok := jsonMap["token"]; ok && !validateToken(token.(string)) {
-		httpErrBadRequest(w, "Invalid api token. Check the sent token or try to revoke the token")
+		requests.SendResponse(w, requests.NewErrorResponse(errors.InvalidAccessTokenError()))
 		return
 	}
 
 	// Routing the query to needed service and returning response
 	adaptedRequest, err := http.NewRequest(r.Method, service_addr+apiMethodName, strings.NewReader(string(reqBodyBytes)))
 	r.Body.Close()
-	handleError(err, w)
+	if err != nil {
+		handleError(err, w)
+		return
+	}
 	response, err := client.Do(adaptedRequest)
-	handleError(err, w)
+	if err != nil {
+		handleError(err, w)
+		return
+	}
 	w.Header().Set("Content-Type", response.Header.Get("Content-Type"))
 	w.Header().Set("Content-Length", response.Header.Get("Content-Length"))
 	w.WriteHeader(response.StatusCode)

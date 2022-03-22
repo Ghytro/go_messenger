@@ -1,0 +1,55 @@
+{
+    "worker_addrs": [
+        "http://localhost:8084"
+    ],
+    "handler_data": [
+        {
+            "name": "create_user",
+            "method": "POST",
+            "required_params": [
+                "email",
+                "username",
+                "password_md5_hash"
+            ]
+        },
+        {
+            "name": "set_username",
+            "method": "POST",
+            "required_params": [
+                "token",
+                "username"
+            ]
+        },
+        {
+            "name": "set_password",
+            "method": "POST",
+            "required_params": [
+                "token"
+            ]
+        },
+        {
+            "name": "set_avatar_url",
+            "method": "POST",
+            "required_params": [
+                "token",
+                "avatar_url"
+            ]
+        },
+        {
+            "name": "user_info",
+            "method": "GET",
+            "required_params": [
+                "token",
+                "username"
+            ]
+        },
+        {
+            "name": "login",
+            "method": "GET",
+            "required_params": [
+                "username",
+                "password_md5_hash"
+            ]
+        }
+    ]
+}
