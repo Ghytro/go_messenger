@@ -121,6 +121,7 @@ func (ur UserInfoResponse) JsonString() string {
 }
 
 func SendResponse(w http.ResponseWriter, r Response) {
+	w.Header().Add("Content-Type", "application/json")
 	w.WriteHeader(r.HTTPStatusCode())
 	w.Write(r.JsonBytes())
 }
