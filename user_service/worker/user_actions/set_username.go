@@ -14,10 +14,15 @@ func SetUsername(setUsernameRequest requests.Request) requests.Response {
 	if !checkUsernameFormat(req.Username) {
 		return requests.NewErrorResponse(errors.IncorrectUsernameError())
 	}
+	rdbGet := redisClient.Get(req.Token)
+	if rdbGet.Err() != nil {
+		return requests.NewErrorResponse(errors.InvalidAccessTokenError())
+	}
+	userId, _ := rdbGet.Int()
 	_, err := userDataDB.Exec(
-		"UPDATE users SET username = $1 WHERE access_token = $2",
+		"UPDATE users SET username = $1 WHERE id = $2",
 		req.Username,
-		req.Token,
+		userId,
 	)
 	if err != nil {
 		log.Println(err) // debug

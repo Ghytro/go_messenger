@@ -19,7 +19,7 @@ var redisClient = redis.NewClient(&redis.Options{
 
 func init() {
 	var err error
-	userDataDB, err = sql.Open("postgres", "host=localhost user=postgres password=123123 dbname=user_data sslmode=disable")
+	userDataDB, err = sql.Open("postgres", "host=localhost user=postgres password=123123 dbname=message_data sslmode=disable")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -29,28 +29,20 @@ func init() {
 		log.Fatal(err)
 	}
 	_, err = tx.ExecContext(ctx, `
-		CREATE TABLE IF NOT EXISTS users (
+		CREATE TABLE IF NOT EXISTS chat_data (
 			id SERIAL PRIMARY KEY NOT NULL,
-			username VARCHAR(20) UNIQUE NOT NULL,
-			email VARCHAR(320) UNIQUE NOT NULL, -- max lenght of email address is defined by international standart
-			password_md5_hash CHAR(32) NOT NULL,
-			access_token CHAR(50) UNIQUE NOT NULL,
-			bio TEXT,
-			avatar_url VARCHAR(2048)
+			chat_name VARCHAR(20) NOT NULL,
+			avatar_url VARCHAR(2048),
+			members INTEGER [] NOT NULL DEFAULT '{}',
+			admin_id INTEGER NOT NULL,
+			chat_type VARCHAR(10) NOT NULL
 		);
 	`)
 	if err != nil {
 		tx.Rollback()
 		log.Fatal(err)
 	}
-	_, err = tx.ExecContext(ctx, `
-		CREATE TABLE IF NOT EXISTS user_chats (
-			user_id SERIAL PRIMARY KEY NOT NULL,
-			chats INTEGER [] NOT NULL DEFAULT '{}'
-		);
-	`)
 	if err = tx.Commit(); err != nil {
-		tx.Rollback()
 		log.Fatal(err)
 	}
 }

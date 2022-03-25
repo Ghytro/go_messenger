@@ -76,9 +76,10 @@ func CreateUser(createUserRequest requests.Request) requests.Response {
 		return requests.NewErrorResponse(errors.IncorrectPasswordMD5HashError())
 	}
 	token := generateAccessToken()
-	_, err := userDataDB.Exec(
+	row, err := userDataDB.QueryRow(
 		`INSERT INTO users (username, email, password_md5_hash, access_token)
-		VALUES ($1, $2, $3, $4)`,
+		VALUES ($1, $2, $3, $4)
+		RETURNING id`,
 		req.Username,
 		req.Email,
 		req.PasswordMD5Hash,
@@ -97,15 +98,18 @@ func CreateUser(createUserRequest requests.Request) requests.Response {
 				token = generateAccessToken()
 			}
 		}
-		_, err = userDataDB.Exec(`
+		row, err = userDataDB.QueryRow(`
 		INSERT INTO users (username, email, password_md5_hash, access_token)
-		VALUES ($1, $2, $3, $4)`,
+		VALUES ($1, $2, $3, $4)
+		RETURNING id`,
 			req.Username,
 			req.Email,
 			req.PasswordMD5Hash,
 			token,
 		)
 	}
-	redisClient.Set(token, req.Username, 0)
+	var newUserId int
+	row.Scan(&newUserId)
+	redisClient.Set(token, newUserId, 0)
 	return requests.NewCreateUserResponse(token)
 }

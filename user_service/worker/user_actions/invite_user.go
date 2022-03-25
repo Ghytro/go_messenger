@@ -8,23 +8,20 @@ import (
 	"github.com/Ghytro/go_messenger/lib/requests"
 )
 
-func SetEmail(setEmailRequest requests.Request) requests.Response {
-	req := setEmailRequest.(*requests.SetEmailRequest)
-	if !checkEmailFormat(req.Email) {
-		return requests.NewErrorResponse(errors.IncorrectEmailFormatError())
-	}
+func InviteUser(inviteUserRequest requests.Request) requests.Response {
+	req := inviteUserRequest.(*requests.InviteUserRequest)
 	rdbGet := redisClient.Get(req.Token)
 	if rdbGet.Err() != nil {
 		return requests.NewErrorResponse(errors.InvalidAccessTokenError())
 	}
 	userId, _ := rdbGet.Int()
-	_, err := userDataDB.Exec(
-		"UPDATE users SET email = $1 WHERE id = $2",
-		req.Email,
-		userId,
+	_, err := userDataDb.Exec(
+		"UPDATE user_chats SET chats = array_append(chats, $1) WHERE user_id = $2",
+		req.ChatId,
+		req.InvitedUserId,
 	)
 	if err != nil {
-		log.Println(err) // debug
+		log.Println(err)
 		return requests.NewEmptyResponse(http.StatusInternalServerError)
 	}
 	return requests.NewEmptyResponse(http.StatusOK)

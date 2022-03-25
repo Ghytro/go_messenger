@@ -120,6 +120,44 @@ func (ur UserInfoResponse) JsonString() string {
 	return string(ur.JsonBytes())
 }
 
+type ChatInfoResponse struct {
+	Name      string    `json:"name"`
+	IsPublic  bool      `json:"is_public"`
+	AvatarUrl *string   `json:"avatar_url,omitempty"`
+	Members   *[]string `json:"members,omitempty"`
+	AdminId   *int      `json:"admin_id,omitempty"`
+}
+
+func (ur ChatInfoResponse) HTTPStatusCode() int {
+	return http.StatusOK
+}
+
+func (cr ChatInfoResponse) JsonBytes() []byte {
+	jsonBytes, _ := json.Marshal(cr)
+	return jsonBytes
+}
+
+func (cr ChatInfoResponse) JsonString() string {
+	return string(cr.JsonBytes())
+}
+
+type CreateChatResponse struct {
+	ChatId int `json:"chat_id"`
+}
+
+func (cr CreateChatResponse) HTTPStatusCode() int {
+	return http.StatusOK
+}
+
+func (cr CreateChatResponse) JsonBytes() []byte {
+	jsonBytes, _ := json.Marshal(cr)
+	return jsonBytes
+}
+
+func (cr CreateChatResponse) JsonString() string {
+	return string(cr.JsonBytes())
+}
+
 func SendResponse(w http.ResponseWriter, r Response) {
 	w.Header().Add("Content-Type", "application/json")
 	w.WriteHeader(r.HTTPStatusCode())

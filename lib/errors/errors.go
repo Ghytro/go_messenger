@@ -20,6 +20,7 @@ const (
 	OldPasswordsDoesntMatchErrorCode
 	UserDoesntExistErrorCode
 	WrongPasswordErrorCode
+	IncorrectUrlErrorCode
 )
 
 type Error struct {
@@ -142,5 +143,13 @@ func WrongPasswordError() Error {
 		Code:           WrongPasswordErrorCode,
 		httpStatusCode: http.StatusBadRequest,
 		Message:        "Wrong password.",
+	}
+}
+
+func IncorrectUrlError() Error {
+	return Error{
+		Code:           IncorrectUrlErrorCode,
+		httpStatusCode: http.StatusBadRequest,
+		Message:        "Incorrect format of url",
 	}
 }
