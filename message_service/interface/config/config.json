@@ -10,7 +10,8 @@
                 "token",
                 "chat_name",
                 "avatar_url",
-                "users"
+                "users",
+                "is_public"
             ]
         },
         {

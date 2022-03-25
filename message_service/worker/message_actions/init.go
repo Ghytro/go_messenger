@@ -31,11 +31,11 @@ func init() {
 	_, err = tx.ExecContext(ctx, `
 		CREATE TABLE IF NOT EXISTS chat_data (
 			id SERIAL PRIMARY KEY NOT NULL,
-			chat_name VARCHAR(20) NOT NULL,
+			name VARCHAR(20) NOT NULL,
 			avatar_url VARCHAR(2048),
 			members INTEGER [] NOT NULL DEFAULT '{}',
 			admin_id INTEGER NOT NULL,
-			chat_type VARCHAR(10) NOT NULL
+			is_public BOOL NOT NULL
 		);
 	`)
 	if err != nil {

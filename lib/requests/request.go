@@ -196,9 +196,10 @@ func (r *InviteUserRequest) JsonString() string {
 
 type CreateChatRequest struct {
 	Token     string                   `json:"token"`
-	ChatName  string                   `json:"chat_name"`
+	Name      string                   `json:"name"`
 	AvatarUrl jsonhelpers.NullString   `json:"avatar_url"`
 	Users     jsonhelpers.NullIntArray `json:"users"`
+	IsPublic  bool                     `json:"is_public"`
 }
 
 func NewCreateChatRequest(jsonBytes []byte) *CreateChatRequest {
@@ -342,10 +343,11 @@ func (r *ChatInfoRequest) JsonString() string {
 }
 
 type SendMessageRequest struct {
-	Token       string                      `json:"token"`
-	ChatId      int                         `json:"chat_id"`
-	MessageText jsonhelpers.NullString      `json:"text"`
-	Attachments jsonhelpers.NullStringArray `json:"attachments"`
+	Token         string                      `json:"token"`
+	ChatId        int                         `json:"chat_id"`
+	MessageText   jsonhelpers.NullString      `json:"text"`
+	Attachments   jsonhelpers.NullStringArray `json:"attachments"`
+	ParentMessage jsonhelpers.NullInt         `json:"parent_message"`
 }
 
 func NewSendMessageRequest(jsonBytes []byte) *SendMessageRequest {
