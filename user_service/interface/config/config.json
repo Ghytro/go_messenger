@@ -67,6 +67,15 @@
                 "invited_user_id",
                 "chat_id"
             ]
+        },
+        {
+            "name": "invite_users",
+            "method": "POST",
+            "required_params": [
+                "token",
+                "invited_users",
+                "chat_id"
+            ]
         }
     ]
 }

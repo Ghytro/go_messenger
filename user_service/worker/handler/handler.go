@@ -18,6 +18,7 @@ var HandlerMap = map[string]func(requests.Request) requests.Response{
 	"/login":          user_actions.LogIn,
 	"/join_chat":      user_actions.JoinChat,
 	"/invite_user":    user_actions.InviteUser,
+	"/invite_users":   user_actions.InviteUsers,
 }
 
 var RequestGeneratorMap = map[string]func([]byte) requests.Request{
@@ -47,6 +48,9 @@ var RequestGeneratorMap = map[string]func([]byte) requests.Request{
 	},
 	"/invite_user": func(jb []byte) requests.Request {
 		return requests.NewInviteUserRequest(jb)
+	},
+	"/invite_users": func(jb []byte) requests.Request {
+		return requests.NewInviteUsersRequest(jb)
 	},
 }
 

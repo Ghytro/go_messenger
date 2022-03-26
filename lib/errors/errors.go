@@ -21,6 +21,7 @@ const (
 	UserDoesntExistErrorCode
 	WrongPasswordErrorCode
 	IncorrectUrlErrorCode
+	UnableToInviteErrorCode
 )
 
 type Error struct {
@@ -151,5 +152,13 @@ func IncorrectUrlError() Error {
 		Code:           IncorrectUrlErrorCode,
 		httpStatusCode: http.StatusBadRequest,
 		Message:        "Incorrect format of url",
+	}
+}
+
+func UnableToInviteError() Error {
+	return Error{
+		Code:           UnableToInviteErrorCode,
+		httpStatusCode: http.StatusBadRequest,
+		Message:        "Unable to invite some of the users specified in request. Check if they are already in chat and all user ids are valid.",
 	}
 }

@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"log"
+	"net/http"
 
 	"github.com/Ghytro/go_messenger/user_service/worker/config"
 	"github.com/go-redis/redis"
@@ -16,6 +17,7 @@ var redisClient = redis.NewClient(&redis.Options{
 	Password: "",
 	DB:       0,
 })
+var httpClient = http.Client{}
 
 func init() {
 	var err error

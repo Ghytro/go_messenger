@@ -14,11 +14,13 @@
     ],
     "message_service_methods": [
         "/create_chat",
-        "/send_message",
-        "/set_chat_title",
+        "/set_chat_name",
         "/set_chat_avatar_url",
+        "/add_user",
         "/kick_user",
         "/ban_user",
-        "/create_invite_link"
+        "/chat_info",
+        "/send_message",
+        "/delete_message"
     ]
 }

@@ -385,3 +385,24 @@ func (r *DeleteMessageRequest) JsonBytes() []byte {
 func (r *DeleteMessageRequest) JsonString() string {
 	return string(r.JsonBytes())
 }
+
+type InviteUsersRequest struct {
+	Token        string `json:"token"`
+	InvitedUsers []int  `json:"invited_users"`
+	ChatId       int    `json:"chat_id"`
+}
+
+func NewInviteUsersRequest(jsonBytes []byte) *InviteUsersRequest {
+	r := new(InviteUsersRequest)
+	json.Unmarshal(jsonBytes, r)
+	return r
+}
+
+func (r *InviteUsersRequest) JsonBytes() []byte {
+	jsonBytes, _ := json.Marshal(*r)
+	return jsonBytes
+}
+
+func (r *InviteUsersRequest) JsonString() string {
+	return string(r.JsonBytes())
+}

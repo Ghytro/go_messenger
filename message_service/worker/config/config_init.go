@@ -9,6 +9,7 @@ import (
 type UserServiceWorkerConfig struct {
 	Port                     int    `json:"port"`
 	RedisTokenValidationAddr string `json:"redis_token_validation_addr"`
+	UserServiceAddr          string `json:"user_service_addr"`
 }
 
 var Config = new(UserServiceWorkerConfig)
