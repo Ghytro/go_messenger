@@ -2,6 +2,7 @@ package message_actions
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"io"
 	"log"
@@ -68,10 +69,11 @@ func CreateChat(createChatRequest requests.Request) requests.Response {
 		return requests.NewEmptyResponse(http.StatusInternalServerError)
 	}
 
-	userServiceRequest := new(requests.InviteUsersRequest)
-	userServiceRequest.Token = req.Token
-	userServiceRequest.InvitedUsers = usersSlice
-	userServiceRequest.ChatId = createdChatId
+	userServiceRequest := &requests.InviteUsersRequest{
+		Token:        req.Token,
+		InvitedUsers: usersSlice,
+		ChatId:       createdChatId,
+	}
 	userServiceResponse, err := httpClient.Post(config.Config.UserServiceAddr+"/invite_users", "application/json", strings.NewReader(userServiceRequest.JsonString()))
 	if err != nil {
 		tx.Rollback()
@@ -80,6 +82,7 @@ func CreateChat(createChatRequest requests.Request) requests.Response {
 	}
 	switch sc := userServiceResponse.StatusCode; sc {
 	case http.StatusInternalServerError:
+		tx.Rollback()
 		return requests.NewEmptyResponse(sc)
 	case http.StatusBadRequest:
 		responseBytes, err := io.ReadAll(userServiceResponse.Body)
@@ -88,7 +91,9 @@ func CreateChat(createChatRequest requests.Request) requests.Response {
 			log.Println(err)
 			return requests.NewEmptyResponse(http.StatusInternalServerError)
 		}
-		return requests.NewErrorResponse(responseBytes)
+		errResponse := new(requests.ErrorResponse)
+		json.Unmarshal(responseBytes, errResponse)
+		return errResponse
 	}
 
 	if err = tx.Commit(); err != nil {

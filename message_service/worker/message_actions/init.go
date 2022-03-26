@@ -37,7 +37,8 @@ func init() {
 			avatar_url VARCHAR(2048),
 			members INTEGER [] NOT NULL DEFAULT '{}',
 			admin_id INTEGER NOT NULL,
-			is_public BOOL NOT NULL
+			is_public BOOL NOT NULL,
+			banned_users INTEGER [] NOT NULL DEFAULT '{}'
 		);
 	`)
 	if err != nil {

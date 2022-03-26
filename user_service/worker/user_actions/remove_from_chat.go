@@ -8,24 +8,26 @@ import (
 	"github.com/Ghytro/go_messenger/lib/requests"
 )
 
-func InviteUser(inviteUserRequest requests.Request) requests.Response {
-	req := inviteUserRequest.(*requests.InviteUserRequest)
+func RemoveFromChat(banUserRequest requests.Request) requests.Response {
+	req := banUserRequest.(*requests.BanUserRequest)
 	rdbGet := redisClient.Get(req.Token)
 	if rdbGet.Err() != nil {
+		log.Println(rdbGet.Err())
 		return requests.NewErrorResponse(errors.InvalidAccessTokenError())
 	}
-	userId, _ := rdbGet.Int()
-	result, err := userDataDb.Exec(
-		"UPDATE user_chats SET chats = array_append(chats, $1) WHERE user_id = $2 AND $1 NOT IN chats",
+	result, err := userDataDB.Exec(`
+		UPDATE user_chats
+		SET chats = ARRAY(SELECT unnest(chats) EXCEPT SELECT $1)
+		WHERE user_id = $2`,
 		req.ChatId,
-		req.InvitedUserId,
+		req.UserId,
 	)
-	if ra, _ := result.RowsAffected(); ra == 0 {
-		return requests.NewErrorResponse(errors.UnableToInviteError())
-	}
 	if err != nil {
 		log.Println(err)
 		return requests.NewEmptyResponse(http.StatusInternalServerError)
+	}
+	if ra, _ := result.RowsAffected(); ra == 0 {
+		return requests.NewErrorResponse(errors.UnableToBanError())
 	}
 	return requests.NewEmptyResponse(http.StatusOK)
 }

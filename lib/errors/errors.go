@@ -22,6 +22,7 @@ const (
 	WrongPasswordErrorCode
 	IncorrectUrlErrorCode
 	UnableToInviteErrorCode
+	UnableToBanErrorCode
 )
 
 type Error struct {
@@ -160,5 +161,13 @@ func UnableToInviteError() Error {
 		Code:           UnableToInviteErrorCode,
 		httpStatusCode: http.StatusBadRequest,
 		Message:        "Unable to invite some of the users specified in request. Check if they are already in chat and all user ids are valid.",
+	}
+}
+
+func UnableToBanError() Error {
+	return Error{
+		Code:           UnableToBanErrorCode,
+		httpStatusCode: http.StatusBadRequest,
+		Message:        "Unable to ban the specified user. Check the correctness of sent request.",
 	}
 }

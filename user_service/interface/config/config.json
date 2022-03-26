@@ -76,6 +76,15 @@
                 "invited_users",
                 "chat_id"
             ]
+        },
+        {
+            "name": "remove_from_chat",
+            "method": "POST",
+            "required_params": [
+                "token",
+                "user_id",
+                "chat_id"
+            ]
         }
     ]
 }
