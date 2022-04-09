@@ -11,7 +11,7 @@ import (
 	_ "github.com/lib/pq"
 )
 
-var userDataDB *sql.DB
+var messageDataDB *sql.DB
 var redisClient = redis.NewClient(&redis.Options{
 	Addr:     config.Config.RedisTokenValidationAddr,
 	Password: "",
@@ -21,12 +21,12 @@ var httpClient = http.Client{}
 
 func init() {
 	var err error
-	userDataDB, err = sql.Open("postgres", "host=localhost user=postgres password=123123 dbname=message_data sslmode=disable")
+	messageDataDB, err = sql.Open("postgres", "host=localhost user=postgres password=123123 dbname=message_data sslmode=disable")
 	if err != nil {
 		log.Fatal(err)
 	}
 	ctx := context.Background()
-	tx, err := userDataDB.BeginTx(ctx, nil)
+	tx, err := messageDataDB.BeginTx(ctx, nil)
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -25,7 +25,7 @@ func CreateChat(createChatRequest requests.Request) requests.Response {
 	userId, _ := rdbGet.Int()
 	usersSlice := append([]int{userId}, req.Users.IntArray...)
 	ctx := context.Background()
-	tx, err := userDataDB.BeginTx(ctx, nil)
+	tx, err := messageDataDB.BeginTx(ctx, nil)
 	if err != nil {
 		log.Println(err)
 		return requests.NewEmptyResponse(http.StatusInternalServerError)

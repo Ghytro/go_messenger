@@ -27,7 +27,7 @@ func AddUser(addUserRequest requests.Request) requests.Response {
 		return requests.NewErrorResponse(errors.UnableToInviteError())
 	}
 	ctx := context.Background()
-	tx, err := userDataDB.BeginTx(ctx, nil)
+	tx, err := messageDataDB.BeginTx(ctx, nil)
 	if err != nil {
 		log.Println(err)
 		return requests.NewEmptyResponse(http.StatusInternalServerError)

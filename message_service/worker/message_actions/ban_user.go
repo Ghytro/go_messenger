@@ -24,7 +24,7 @@ func BanUser(banUserRequest requests.Request) requests.Response {
 		return requests.NewErrorResponse(errors.UnableToBanError())
 	}
 	ctx := context.Background()
-	tx, err := userDataDB.BeginTx(ctx, nil)
+	tx, err := messageDataDB.BeginTx(ctx, nil)
 	// todo: add to ban list and remove chat in user service
 	result, err := tx.ExecContext(ctx, `
 		UPDATE chat_data
