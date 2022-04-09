@@ -8,9 +8,7 @@
             "method": "POST",
             "required_params": [
                 "token",
-                "chat_name",
-                "avatar_url",
-                "users",
+                "name",
                 "is_public"
             ]
         },

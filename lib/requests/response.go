@@ -19,8 +19,11 @@ type ErrorResponse struct {
 	httpStatusCode int
 }
 
-func NewErrorResponse(err errors.Error) *ErrorResponse {
-	return &ErrorResponse{err, err.HTTPStatusCode()}
+func NewErrorResponse(err errors.Error, httpStatusCode ...int) *ErrorResponse {
+	if len(httpStatusCode) == 0 {
+		return &ErrorResponse{err, err.HTTPStatusCode()}
+	}
+	return &ErrorResponse{err, httpStatusCode[0]}
 }
 
 func (er ErrorResponse) HTTPStatusCode() int {

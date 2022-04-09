@@ -28,6 +28,7 @@ func init() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	defer tx.Rollback()
 	_, err = tx.ExecContext(ctx, `
 		CREATE TABLE IF NOT EXISTS users (
 			id SERIAL PRIMARY KEY NOT NULL,
@@ -36,21 +37,14 @@ func init() {
 			password_md5_hash CHAR(32) NOT NULL,
 			access_token CHAR(50) UNIQUE NOT NULL,
 			bio TEXT,
-			avatar_url VARCHAR(2048)
-		);
-	`)
-	if err != nil {
-		tx.Rollback()
-		log.Fatal(err)
-	}
-	_, err = tx.ExecContext(ctx, `
-		CREATE TABLE IF NOT EXISTS user_chats (
-			user_id SERIAL PRIMARY KEY NOT NULL,
+			avatar_url VARCHAR(2048),
 			chats INTEGER [] NOT NULL DEFAULT '{}'
 		);
 	`)
+	if err != nil {
+		log.Fatal(err)
+	}
 	if err = tx.Commit(); err != nil {
-		tx.Rollback()
 		log.Fatal(err)
 	}
 }

@@ -11,5 +11,5 @@ func main() {
 	for _, h := range config.Config.Handlers {
 		http.HandleFunc("/"+h.Name, adapter.SendRequest)
 	}
-	http.ListenAndServe(":8082", nil)
+	http.ListenAndServe(":8083", nil)
 }

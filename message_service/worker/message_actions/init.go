@@ -1,4 +1,4 @@
-package user_actions
+package message_actions
 
 import (
 	"context"
@@ -6,7 +6,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/Ghytro/go_messenger/user_service/worker/config"
+	"github.com/Ghytro/go_messenger/message_service/worker/config"
 	"github.com/go-redis/redis"
 	_ "github.com/lib/pq"
 )

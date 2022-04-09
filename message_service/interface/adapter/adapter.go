@@ -2,6 +2,7 @@ package adapter
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -34,6 +35,7 @@ func SendRequest(w http.ResponseWriter, r *http.Request) {
 
 	reqBodyBytes, err := io.ReadAll(r.Body)
 	handleError(err, w)
+	fmt.Println(string(reqBodyBytes))
 
 	// verifying that we have all the necessary parameters
 	jsonMap := make(map[string]interface{})

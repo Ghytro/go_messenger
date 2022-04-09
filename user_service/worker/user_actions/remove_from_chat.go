@@ -16,9 +16,9 @@ func RemoveFromChat(banUserRequest requests.Request) requests.Response {
 		return requests.NewErrorResponse(errors.InvalidAccessTokenError())
 	}
 	result, err := userDataDB.Exec(`
-		UPDATE user_chats
+		UPDATE users
 		SET chats = ARRAY(SELECT unnest(chats) EXCEPT SELECT $1)
-		WHERE user_id = $2`,
+		WHERE id = $2`,
 		req.ChatId,
 		req.UserId,
 	)

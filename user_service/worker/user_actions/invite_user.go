@@ -15,8 +15,11 @@ func InviteUser(inviteUserRequest requests.Request) requests.Response {
 		return requests.NewErrorResponse(errors.InvalidAccessTokenError())
 	}
 	userId, _ := rdbGet.Int()
-	result, err := userDataDb.Exec(
-		"UPDATE user_chats SET chats = array_append(chats, $1) WHERE user_id = $2 AND $1 NOT IN chats",
+	if userId == req.InvitedUserId {
+		return requests.NewErrorResponse(errors.UnableToInviteError())
+	}
+	result, err := userDataDB.Exec(
+		"UPDATE users SET chats = array_append(chats, $1) WHERE id = $2 AND $1 NOT IN chats",
 		req.ChatId,
 		req.InvitedUserId,
 	)
