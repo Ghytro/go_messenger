@@ -28,7 +28,7 @@ func main() {
 	conn, err := sql.Open("postgres", "host=localhost user=postgres password=123123 dbname=user_data sslmode=disable")
 	handleErr(err)
 	rdb := redis.NewClient(&redis.Options{
-		Addr:     ":6379",
+		Addr:     "localhost:6379",
 		Password: "",
 		DB:       0,
 	})

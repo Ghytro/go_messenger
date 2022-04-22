@@ -1,9 +1,9 @@
 package notification
 
 type Notification struct {
-	Action      string      `json:"type"`
-	Description interface{} `json:"description"`
-	Timestamp   int64       `json:"timestamp"`
+	Action      string                 `json:"type"`
+	Description map[string]interface{} `json:"description"`
+	Timestamp   int64                  `json:"timestamp"`
 }
 
 type Notifications struct {

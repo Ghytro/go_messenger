@@ -2,6 +2,7 @@ package notification
 
 import (
 	"errors"
+	"fmt"
 	"sync"
 	"time"
 )
@@ -35,22 +36,26 @@ func Get(token string) ([]Notification, error) {
 func Push(token string, n Notification) {
 	nStorage.mutex.Lock()
 	defer nStorage.mutex.Unlock()
-
+	fmt.Println("here1")
 	if _, ok := nStorage.notifications[token]; !ok {
 		nStorage.notifications[token] = make([]Notification, 0)
 	}
+	fmt.Println("here2")
 	if _, ok := nStorage.pubSubChannels[token]; !ok {
-		nStorage.pubSubChannels[token] = make(chan struct{})
+		nStorage.pubSubChannels[token] = make(chan struct{}, 1)
 	}
+	fmt.Println("here3")
 	nStorage.notifications[token] = append(nStorage.notifications[token], n)
+	fmt.Println("here4")
 	if len(nStorage.pubSubChannels[token]) == 0 { // only store info that notifications were appended
 		nStorage.pubSubChannels[token] <- struct{}{}
 	}
+	fmt.Println("here5")
 }
 
 func WaitForNotifications(token string) ([]Notification, error) {
 	if _, ok := nStorage.pubSubChannels[token]; !ok {
-		nStorage.pubSubChannels[token] = make(chan struct{})
+		nStorage.pubSubChannels[token] = make(chan struct{}, 1)
 	}
 
 	select {
