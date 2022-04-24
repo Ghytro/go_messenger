@@ -23,6 +23,7 @@ const (
 	IncorrectUrlErrorCode
 	UnableToInviteErrorCode
 	UnableToBanErrorCode
+	UnableToSendMessageErrorCode
 )
 
 type Error struct {
@@ -169,5 +170,13 @@ func UnableToBanError() Error {
 		Code:           UnableToBanErrorCode,
 		httpStatusCode: http.StatusBadRequest,
 		Message:        "Unable to ban the specified user. Check the correctness of sent request.",
+	}
+}
+
+func UnableToSendMessageError() Error {
+	return Error{
+		Code:           UnableToSendMessageErrorCode,
+		httpStatusCode: http.StatusBadRequest,
+		Message:        "Unable to send message to this chat",
 	}
 }

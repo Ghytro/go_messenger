@@ -123,12 +123,17 @@ func (ur UserInfoResponse) JsonString() string {
 	return string(ur.JsonBytes())
 }
 
+type ChatInfo struct {
+	Id        int      `json:"chat_id"`
+	Name      string   `json:"name"`
+	IsPublic  bool     `json:"is_public"`
+	AvatarUrl *string  `json:"avatar_url,omitempty"`
+	Members   []string `json:"members,omitempty"`
+	AdminId   *int     `json:"admin_id,omitempty"`
+}
+
 type ChatInfoResponse struct {
-	Name      string    `json:"name"`
-	IsPublic  bool      `json:"is_public"`
-	AvatarUrl *string   `json:"avatar_url,omitempty"`
-	Members   *[]string `json:"members,omitempty"`
-	AdminId   *int      `json:"admin_id,omitempty"`
+	Chats []ChatInfo `json:"chats"`
 }
 
 func (ur ChatInfoResponse) HTTPStatusCode() int {

@@ -62,7 +62,7 @@
             "method": "GET",
             "required_params": [
                 "token",
-                "chat_id"
+                "chat_ids"
             ]
         },
         {

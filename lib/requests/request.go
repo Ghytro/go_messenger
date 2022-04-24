@@ -323,8 +323,8 @@ func (r *BanUserRequest) JsonString() string {
 }
 
 type ChatInfoRequest struct {
-	Token  string `json:"token"`
-	ChatId int    `json:"chat_id"`
+	Token   string `json:"token"`
+	ChatIds []int  `json:"chat_ids"`
 }
 
 func NewChatInfoRequest(jsonBytes []byte) *ChatInfoRequest {
@@ -343,11 +343,11 @@ func (r *ChatInfoRequest) JsonString() string {
 }
 
 type SendMessageRequest struct {
-	Token         string                      `json:"token"`
-	ChatId        int                         `json:"chat_id"`
-	MessageText   jsonhelpers.NullString      `json:"text"`
-	Attachments   jsonhelpers.NullStringArray `json:"attachments"`
-	ParentMessage jsonhelpers.NullInt         `json:"parent_message"`
+	Token         string                 `json:"token"`
+	ChatId        int                    `json:"chat_id"`
+	MessageText   jsonhelpers.NullString `json:"text"`
+	Attachments   []string               `json:"attachments,omitempty"`
+	ParentMessage jsonhelpers.NullInt    `json:"parent_message"`
 }
 
 func NewSendMessageRequest(jsonBytes []byte) *SendMessageRequest {

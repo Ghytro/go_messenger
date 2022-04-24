@@ -33,7 +33,7 @@ func BanUser(banUserRequest requests.Request) requests.Response {
 			members = ARRAY(SELECT unnest(members) EXCEPT SELECT $1)
 		WHERE
 			id = $2 AND
-			$1 IN members AND
+			$1 = ANY(members) AND
 			admin_id = $3`,
 		req.UserId,
 		req.ChatId,

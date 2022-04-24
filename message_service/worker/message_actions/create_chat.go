@@ -55,7 +55,7 @@ func CreateChat(createChatRequest requests.Request) requests.Response {
 			sender_id INT NOT NULL,
 			message_text TEXT,
 			attachments VARCHAR(2048) [] NOT NULL DEFAULT '{}',
-			send_timestamp TIMESTAMP NOT NULL,
+			send_timestamp TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 			parent_message INT
 		)`, messageTableName),
 	)
