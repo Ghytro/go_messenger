@@ -13,6 +13,7 @@ import (
 	"github.com/Ghytro/go_messenger/lib/errors"
 	"github.com/Ghytro/go_messenger/lib/requests"
 	"github.com/Ghytro/go_messenger/message_service/worker/config"
+	"github.com/lib/pq"
 )
 
 func SendMessage(sendMessageRequest requests.Request) requests.Response {
@@ -25,6 +26,15 @@ func SendMessage(sendMessageRequest requests.Request) requests.Response {
 	}
 	userId, _ := rdbGet.Int()
 
+	if (!req.MessageText.Valid || req.MessageText.String == "") &&
+		(req.Attachments == nil || len(req.Attachments) == 0) {
+		return requests.NewErrorResponse(errors.EmptyMessageError())
+	}
+
+	if req.Attachments == nil { // bruh moment
+		req.Attachments = make([]string, 0)
+	}
+
 	ctx := context.Background()
 	tx, err := messageDataDB.BeginTx(ctx, nil)
 	if err != nil {
@@ -33,7 +43,7 @@ func SendMessage(sendMessageRequest requests.Request) requests.Response {
 	defer tx.Rollback()
 	// check if the user is in chat
 	// returned members will be useful when creating notifications
-	members := make([]int, 0)
+	var members pq.Int64Array
 	if err := tx.QueryRowContext(ctx,
 		"SELECT members FROM chat_data WHERE id = $1 AND $2 = ANY(members)",
 		req.ChatId,
@@ -56,7 +66,7 @@ func SendMessage(sendMessageRequest requests.Request) requests.Response {
 		),
 		userId,
 		req.MessageText,
-		req.Attachments,
+		pq.Array(req.Attachments),
 		req.ParentMessage,
 	); err != nil {
 		log.Println(err)
@@ -78,7 +88,7 @@ func SendMessage(sendMessageRequest requests.Request) requests.Response {
 	notifications := make([]JSONNotification, len(members))
 	for i := range notifications {
 		notifications[i] = JSONNotification{
-			UserId: members[i],
+			UserId: int(members[i]),
 			Notification: Notification{
 				Action: "incoming_message",
 				Description: map[string]interface{}{

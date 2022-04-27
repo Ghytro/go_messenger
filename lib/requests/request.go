@@ -406,3 +406,10 @@ func (r *InviteUsersRequest) JsonBytes() []byte {
 func (r *InviteUsersRequest) JsonString() string {
 	return string(r.JsonBytes())
 }
+
+type GetLastMessagesRequest struct {
+	Token  string `json:"token"`
+	ChatId int    `json:"chat_id"`
+	Amount int    `json:"amount"`
+	Offset int    `json:"offset"`
+}

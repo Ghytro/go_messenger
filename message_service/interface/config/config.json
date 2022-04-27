@@ -74,6 +74,15 @@
             ]
         },
         {
+            "name": "get_last_messages",
+            "method": "GET",
+            "required_params": [
+                "token",
+                "chat_id",
+                "amount"
+            ]
+        },
+        {
             "name": "delete_message",
             "method": "DELETE",
             "required_params": [

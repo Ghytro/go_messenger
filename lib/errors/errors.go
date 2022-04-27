@@ -24,6 +24,8 @@ const (
 	UnableToInviteErrorCode
 	UnableToBanErrorCode
 	UnableToSendMessageErrorCode
+	EmptyMessageErrorCode
+	InvalidChatIdErrorCode
 )
 
 type Error struct {
@@ -178,5 +180,21 @@ func UnableToSendMessageError() Error {
 		Code:           UnableToSendMessageErrorCode,
 		httpStatusCode: http.StatusBadRequest,
 		Message:        "Unable to send message to this chat",
+	}
+}
+
+func EmptyMessageError() Error {
+	return Error{
+		Code:           EmptyMessageErrorCode,
+		httpStatusCode: http.StatusBadRequest,
+		Message:        "Unable to send an empty message. Your message can have empty text only if you have attachments",
+	}
+}
+
+func InvalidChatIdError() Error {
+	return Error{
+		Code:           InvalidChatIdErrorCode,
+		httpStatusCode: http.StatusBadRequest,
+		Message:        "Invalid chat id",
 	}
 }

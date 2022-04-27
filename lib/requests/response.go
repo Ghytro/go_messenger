@@ -6,6 +6,7 @@ import (
 
 	"github.com/Ghytro/go_messenger/lib/errors"
 	"github.com/Ghytro/go_messenger/lib/jsonhelpers"
+	"github.com/lib/pq"
 )
 
 type Response interface {
@@ -164,6 +165,33 @@ func (cr CreateChatResponse) JsonBytes() []byte {
 
 func (cr CreateChatResponse) JsonString() string {
 	return string(cr.JsonBytes())
+}
+
+type Message struct {
+	Id            int              `json:"id"`
+	SenderId      int              `json:"sender_id"`
+	MessageText   *string          `json:"message_text",omitempty`
+	Attachments   []pq.StringArray `json:"attachments",omitempty`
+	ParentMessage *int             `json:parent_message,omitempty`
+	Timestamp     int64            `json:"timestamp"`
+}
+
+type GetLastMessagesResponse struct {
+	ChatId   int       `json:"chat_id"`
+	Messages []Message `json:"messages"`
+}
+
+func (lm GetLastMessagesResponse) HTTPStatusCode() int {
+	return http.StatusOK
+}
+
+func (lm GetLastMessagesResponse) JsonBytes() []byte {
+	jsonBytes, _ := json.Marshal(lm)
+	return jsonBytes
+}
+
+func (lm GetLastMessagesResponse) JsonString() string {
+	return string(lm.JsonBytes())
 }
 
 func SendResponse(w http.ResponseWriter, r Response) {
