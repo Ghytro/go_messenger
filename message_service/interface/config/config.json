@@ -1,0 +1,95 @@
+{
+    "worker_addrs": [
+        "http://localhost:8085"
+    ],
+    "handler_data": [
+        {
+            "name": "create_chat",
+            "method": "POST",
+            "required_params": [
+                "token",
+                "name",
+                "is_public"
+            ]
+        },
+        {
+            "name": "set_chat_name",
+            "method": "POST",
+            "required_params": [
+                "token",
+                "chat_id",
+                "chat_name"
+            ]
+        },
+        {
+            "name": "set_chat_avatar_url",
+            "method": "POST",
+            "required_params": [
+                "token",
+                "chat_id",
+                "avatar_url"
+            ]
+        },
+        {
+            "name": "add_user",
+            "method": "POST",
+            "required_params": [
+                "token",
+                "chat_id",
+                "user_id"
+            ]
+        },
+        {
+            "name": "kick_user",
+            "method": "POST",
+            "required_params": [
+                "token",
+                "chat_id",
+                "user_id"
+            ]
+        },
+        {
+            "name": "ban_user",
+            "method": "POST",
+            "required_params": [
+                "token",
+                "chat_id",
+                "user_id"
+            ]
+        },
+        {
+            "name": "chat_info",
+            "method": "GET",
+            "required_params": [
+                "token",
+                "chat_ids"
+            ]
+        },
+        {
+            "name": "send_message",
+            "method": "POST",
+            "required_params": [
+                "token",
+                "chat_id"
+            ]
+        },
+        {
+            "name": "get_last_messages",
+            "method": "GET",
+            "required_params": [
+                "token",
+                "chat_id",
+                "amount"
+            ]
+        },
+        {
+            "name": "delete_message",
+            "method": "DELETE",
+            "required_params": [
+                "token",
+                "chat_id",
+                "message_id"
+            ]
+        }
+    ]
+}

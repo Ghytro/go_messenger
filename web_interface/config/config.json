@@ -1,8 +1,8 @@
 {
-    "message_service_addr": "http://localhost:8081",
+    "message_service_addr": "http://localhost:8083",
     "user_service_addr": "http://localhost:8082",
-    "file_storage_service_addr": "http://localhost:8083",
-    "redis_token_validation_addr": "http://localhost:6379",
+    "file_storage_service_addr": "http://localhost:8090",
+    "redis_token_validation_addr": "localhost:6379",
     "user_service_methods": [
         "/create_user",
         "/login",
@@ -14,11 +14,14 @@
     ],
     "message_service_methods": [
         "/create_chat",
-        "/send_message",
-        "/set_chat_title",
+        "/set_chat_name",
         "/set_chat_avatar_url",
+        "/add_user",
         "/kick_user",
         "/ban_user",
-        "/create_invite_link"
+        "/chat_info",
+        "/send_message",
+        "/delete_message",
+        "/get_last_messages"
     ]
 }

@@ -13,10 +13,15 @@ func SetEmail(setEmailRequest requests.Request) requests.Response {
 	if !checkEmailFormat(req.Email) {
 		return requests.NewErrorResponse(errors.IncorrectEmailFormatError())
 	}
+	rdbGet := redisClient.Get(req.Token)
+	if rdbGet.Err() != nil {
+		return requests.NewErrorResponse(errors.InvalidAccessTokenError())
+	}
+	userId, _ := rdbGet.Int()
 	_, err := userDataDB.Exec(
-		"UPDATE users SET email = $1 WHERE access_token = $2",
+		"UPDATE users SET email = $1 WHERE id = $2",
 		req.Email,
-		req.Token,
+		userId,
 	)
 	if err != nil {
 		log.Println(err) // debug

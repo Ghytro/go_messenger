@@ -9,13 +9,17 @@ import (
 )
 
 var HandlerMap = map[string]func(requests.Request) requests.Response{
-	"/create_user":    user_actions.CreateUser,
-	"/set_username":   user_actions.SetUsername,
-	"/set_password":   user_actions.SetPassword,
-	"/set_avatar_url": user_actions.SetAvatarUrl,
-	"/user_info":      user_actions.UserInfo,
-	"/set_email":      user_actions.SetEmail,
-	"/login":          user_actions.LogIn,
+	"/create_user":      user_actions.CreateUser,
+	"/set_username":     user_actions.SetUsername,
+	"/set_password":     user_actions.SetPassword,
+	"/set_avatar_url":   user_actions.SetAvatarUrl,
+	"/user_info":        user_actions.UserInfo,
+	"/set_email":        user_actions.SetEmail,
+	"/login":            user_actions.LogIn,
+	"/join_chat":        user_actions.JoinChat,
+	"/invite_user":      user_actions.InviteUser,
+	"/invite_users":     user_actions.InviteUsers,
+	"/remove_from_chat": user_actions.RemoveFromChat,
 }
 
 var RequestGeneratorMap = map[string]func([]byte) requests.Request{
@@ -39,6 +43,18 @@ var RequestGeneratorMap = map[string]func([]byte) requests.Request{
 	},
 	"/login": func(jb []byte) requests.Request {
 		return requests.NewLogInRequest(jb)
+	},
+	"/join_chat": func(jb []byte) requests.Request {
+		return requests.NewJoinChatRequest(jb)
+	},
+	"/invite_user": func(jb []byte) requests.Request {
+		return requests.NewInviteUserRequest(jb)
+	},
+	"/invite_users": func(jb []byte) requests.Request {
+		return requests.NewInviteUsersRequest(jb)
+	},
+	"/remove_from_chat": func(jb []byte) requests.Request {
+		return requests.NewBanUserRequest(jb)
 	},
 }
 

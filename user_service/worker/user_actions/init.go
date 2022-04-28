@@ -1,6 +1,7 @@
 package user_actions
 
 import (
+	"context"
 	"database/sql"
 	"log"
 
@@ -22,7 +23,13 @@ func init() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	_, err = userDataDB.Exec(`
+	ctx := context.Background()
+	tx, err := userDataDB.BeginTx(ctx, nil)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer tx.Rollback()
+	_, err = tx.ExecContext(ctx, `
 		CREATE TABLE IF NOT EXISTS users (
 			id SERIAL PRIMARY KEY NOT NULL,
 			username VARCHAR(20) UNIQUE NOT NULL,
@@ -30,10 +37,14 @@ func init() {
 			password_md5_hash CHAR(32) NOT NULL,
 			access_token CHAR(50) UNIQUE NOT NULL,
 			bio TEXT,
-			avatar_url VARCHAR(2048)
+			avatar_url VARCHAR(2048),
+			chats INTEGER [] NOT NULL DEFAULT '{}'
 		);
 	`)
 	if err != nil {
+		log.Fatal(err)
+	}
+	if err = tx.Commit(); err != nil {
 		log.Fatal(err)
 	}
 }

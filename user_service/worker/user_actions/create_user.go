@@ -1,8 +1,10 @@
 package user_actions
 
 import (
+	"context"
 	"log"
 	"math/rand"
+	"net/http"
 	"net/mail"
 	"strings"
 
@@ -76,15 +78,31 @@ func CreateUser(createUserRequest requests.Request) requests.Response {
 		return requests.NewErrorResponse(errors.IncorrectPasswordMD5HashError())
 	}
 	token := generateAccessToken()
-	_, err := userDataDB.Exec(
+	ctx := context.Background()
+	tx, err := userDataDB.BeginTx(ctx, nil)
+	if err != nil {
+		log.Println(err)
+		return requests.NewEmptyResponse(http.StatusInternalServerError)
+	}
+	defer tx.Rollback()
+
+	_, err = tx.ExecContext(ctx,
+		`SAVEPOINT sp`,
+	)
+	if err != nil {
+		log.Println(err)
+		return requests.NewEmptyResponse(http.StatusInternalServerError)
+	}
+	row := tx.QueryRowContext(ctx,
 		`INSERT INTO users (username, email, password_md5_hash, access_token)
-		VALUES ($1, $2, $3, $4)`,
+		VALUES ($1, $2, $3, $4)
+		RETURNING id`,
 		req.Username,
 		req.Email,
 		req.PasswordMD5Hash,
 		token,
 	)
-	for err != nil {
+	for err := row.Err(); err != nil; err = row.Err() {
 		log.Println(err) // debug
 		pqErr := err.(*pq.Error)
 		if pqErr.Code == "23505" { // unique constraint violation
@@ -97,15 +115,34 @@ func CreateUser(createUserRequest requests.Request) requests.Response {
 				token = generateAccessToken()
 			}
 		}
-		_, err = userDataDB.Exec(`
+		_, err = tx.ExecContext(ctx,
+			`ROLLBACK TO SAVEPOINT sp`,
+		)
+		if err != nil {
+			log.Println(err)
+			return requests.NewEmptyResponse(http.StatusInternalServerError)
+		}
+		row = tx.QueryRowContext(ctx, `
 		INSERT INTO users (username, email, password_md5_hash, access_token)
-		VALUES ($1, $2, $3, $4)`,
+		VALUES ($1, $2, $3, $4)
+		RETURNING id`,
 			req.Username,
 			req.Email,
 			req.PasswordMD5Hash,
 			token,
 		)
 	}
-	redisClient.Set(token, req.Username, 0)
+	_, err = tx.ExecContext(ctx, "RELEASE SAVEPOINT sp")
+	if err != nil {
+		log.Println(err)
+		return requests.NewEmptyResponse(http.StatusInternalServerError)
+	}
+	if err = tx.Commit(); err != nil {
+		log.Println(err)
+		return requests.NewEmptyResponse(http.StatusInternalServerError)
+	}
+	var newUserId int
+	row.Scan(&newUserId)
+	redisClient.Set(token, newUserId, 0)
 	return requests.NewCreateUserResponse(token)
 }

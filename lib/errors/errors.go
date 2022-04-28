@@ -20,6 +20,15 @@ const (
 	OldPasswordsDoesntMatchErrorCode
 	UserDoesntExistErrorCode
 	WrongPasswordErrorCode
+	IncorrectUrlErrorCode
+	UnableToInviteErrorCode
+	UnableToBanErrorCode
+	UnableToSendMessageErrorCode
+	EmptyMessageErrorCode
+	InvalidChatIdErrorCode
+	UnableToGetMessagesErrorCode
+	NegativeOffsetValueErrorCode
+	NegativeAmountValueErrorCode
 )
 
 type Error struct {
@@ -142,5 +151,77 @@ func WrongPasswordError() Error {
 		Code:           WrongPasswordErrorCode,
 		httpStatusCode: http.StatusBadRequest,
 		Message:        "Wrong password.",
+	}
+}
+
+func IncorrectUrlError() Error {
+	return Error{
+		Code:           IncorrectUrlErrorCode,
+		httpStatusCode: http.StatusBadRequest,
+		Message:        "Incorrect format of url",
+	}
+}
+
+func UnableToInviteError() Error {
+	return Error{
+		Code:           UnableToInviteErrorCode,
+		httpStatusCode: http.StatusBadRequest,
+		Message:        "Unable to invite some of the users specified in request. Check if they are already in chat and all user ids are valid.",
+	}
+}
+
+func UnableToBanError() Error {
+	return Error{
+		Code:           UnableToBanErrorCode,
+		httpStatusCode: http.StatusBadRequest,
+		Message:        "Unable to ban the specified user. Check the correctness of sent request.",
+	}
+}
+
+func UnableToSendMessageError() Error {
+	return Error{
+		Code:           UnableToSendMessageErrorCode,
+		httpStatusCode: http.StatusBadRequest,
+		Message:        "Unable to send message to this chat",
+	}
+}
+
+func EmptyMessageError() Error {
+	return Error{
+		Code:           EmptyMessageErrorCode,
+		httpStatusCode: http.StatusBadRequest,
+		Message:        "Unable to send an empty message. Your message can have empty text only if you have attachments",
+	}
+}
+
+func InvalidChatIdError() Error {
+	return Error{
+		Code:           InvalidChatIdErrorCode,
+		httpStatusCode: http.StatusBadRequest,
+		Message:        "Invalid chat id",
+	}
+}
+
+func UnableToGetMessagesError() Error {
+	return Error{
+		Code:           UnableToGetMessagesErrorCode,
+		httpStatusCode: http.StatusForbidden,
+		Message:        "Unable to get access to the chat",
+	}
+}
+
+func NegativeOffsetValueError() Error {
+	return Error{
+		Code:           NegativeOffsetValueErrorCode,
+		httpStatusCode: http.StatusBadRequest,
+		Message:        "Offset value cannot be negative",
+	}
+}
+
+func NegativeAmountValueError() Error {
+	return Error{
+		Code:           NegativeAmountValueErrorCode,
+		httpStatusCode: http.StatusBadRequest,
+		Message:        "Amount value cannot be negative",
 	}
 }

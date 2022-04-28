@@ -1,0 +1,6 @@
+{
+    "port": 8085,
+    "redis_token_validation_addr": "localhost:6379",
+    "user_service_addr": "http://localhost:8082",
+    "notification_service_addr": "http://localhost:8078"
+}

@@ -38,3 +38,39 @@ func (ni *NullInt) UnmarshalJSON(data []byte) error {
 	ni.Valid = (err == nil)
 	return err
 }
+
+type NullIntArray struct {
+	IntArray []int
+	Valid    bool
+}
+
+func (na NullIntArray) MarshalJson() ([]byte, error) {
+	if !na.Valid {
+		return []byte("null"), nil
+	}
+	return json.Marshal(na.IntArray)
+}
+
+func (na *NullIntArray) UnmarshalJSON(data []byte) error {
+	err := json.Unmarshal(data, &na.IntArray)
+	na.Valid = (err == nil)
+	return err
+}
+
+type NullStringArray struct {
+	StringArray []string
+	Valid       bool
+}
+
+func (na NullStringArray) MarshalJson() ([]byte, error) {
+	if !na.Valid {
+		return []byte("null"), nil
+	}
+	return json.Marshal(na.StringArray)
+}
+
+func (na *NullStringArray) UnmarshalJSON(data []byte) error {
+	err := json.Unmarshal(data, &na.StringArray)
+	na.Valid = (err == nil)
+	return err
+}

@@ -32,7 +32,7 @@ type HandlerData struct {
 var Config = new(MessageServiceInterfaceConfig)
 
 func init() {
-	configFileBytes, err := os.ReadFile("config.json")
+	configFileBytes, err := os.ReadFile("../config/config.json")
 	if err != nil {
 		log.Fatal(err)
 	}

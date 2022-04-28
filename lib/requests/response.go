@@ -6,6 +6,7 @@ import (
 
 	"github.com/Ghytro/go_messenger/lib/errors"
 	"github.com/Ghytro/go_messenger/lib/jsonhelpers"
+	"github.com/lib/pq"
 )
 
 type Response interface {
@@ -19,8 +20,11 @@ type ErrorResponse struct {
 	httpStatusCode int
 }
 
-func NewErrorResponse(err errors.Error) *ErrorResponse {
-	return &ErrorResponse{err, err.HTTPStatusCode()}
+func NewErrorResponse(err errors.Error, httpStatusCode ...int) *ErrorResponse {
+	if len(httpStatusCode) == 0 {
+		return &ErrorResponse{err, err.HTTPStatusCode()}
+	}
+	return &ErrorResponse{err, httpStatusCode[0]}
 }
 
 func (er ErrorResponse) HTTPStatusCode() int {
@@ -118,6 +122,76 @@ func (ur UserInfoResponse) JsonBytes() []byte {
 
 func (ur UserInfoResponse) JsonString() string {
 	return string(ur.JsonBytes())
+}
+
+type ChatInfo struct {
+	Id        int      `json:"chat_id"`
+	Name      string   `json:"name"`
+	IsPublic  bool     `json:"is_public"`
+	AvatarUrl *string  `json:"avatar_url,omitempty"`
+	Members   []string `json:"members,omitempty"`
+	AdminId   *int     `json:"admin_id,omitempty"`
+}
+
+type ChatInfoResponse struct {
+	Chats []ChatInfo `json:"chats"`
+}
+
+func (ur ChatInfoResponse) HTTPStatusCode() int {
+	return http.StatusOK
+}
+
+func (cr ChatInfoResponse) JsonBytes() []byte {
+	jsonBytes, _ := json.Marshal(cr)
+	return jsonBytes
+}
+
+func (cr ChatInfoResponse) JsonString() string {
+	return string(cr.JsonBytes())
+}
+
+type CreateChatResponse struct {
+	ChatId int `json:"chat_id"`
+}
+
+func (cr CreateChatResponse) HTTPStatusCode() int {
+	return http.StatusOK
+}
+
+func (cr CreateChatResponse) JsonBytes() []byte {
+	jsonBytes, _ := json.Marshal(cr)
+	return jsonBytes
+}
+
+func (cr CreateChatResponse) JsonString() string {
+	return string(cr.JsonBytes())
+}
+
+type Message struct {
+	Id            int              `json:"id"`
+	SenderId      int              `json:"sender_id"`
+	MessageText   *string          `json:"message_text",omitempty`
+	Attachments   []pq.StringArray `json:"attachments",omitempty`
+	ParentMessage *int             `json:parent_message,omitempty`
+	Timestamp     int64            `json:"timestamp"`
+}
+
+type GetLastMessagesResponse struct {
+	ChatId   int       `json:"chat_id"`
+	Messages []Message `json:"messages"`
+}
+
+func (lm GetLastMessagesResponse) HTTPStatusCode() int {
+	return http.StatusOK
+}
+
+func (lm GetLastMessagesResponse) JsonBytes() []byte {
+	jsonBytes, _ := json.Marshal(lm)
+	return jsonBytes
+}
+
+func (lm GetLastMessagesResponse) JsonString() string {
+	return string(lm.JsonBytes())
 }
 
 func SendResponse(w http.ResponseWriter, r Response) {

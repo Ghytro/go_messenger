@@ -40,7 +40,7 @@
             "method": "GET",
             "required_params": [
                 "token",
-                "username"
+                "user_id"
             ]
         },
         {
@@ -49,6 +49,41 @@
             "required_params": [
                 "username",
                 "password_md5_hash"
+            ]
+        },
+        {
+            "name": "join_chat",
+            "method": "POST",
+            "required_params": [
+                "token",
+                "chat_id"
+            ]
+        },
+        {
+            "name": "invite_user",
+            "method": "POST",
+            "required_params": [
+                "token",
+                "invited_user_id",
+                "chat_id"
+            ]
+        },
+        {
+            "name": "invite_users",
+            "method": "POST",
+            "required_params": [
+                "token",
+                "invited_users",
+                "chat_id"
+            ]
+        },
+        {
+            "name": "remove_from_chat",
+            "method": "POST",
+            "required_params": [
+                "token",
+                "user_id",
+                "chat_id"
             ]
         }
     ]
