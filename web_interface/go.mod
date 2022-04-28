@@ -7,4 +7,5 @@ replace github.com/Ghytro/go_messenger/lib => ../lib
 require (
 	github.com/Ghytro/go_messenger/lib v0.0.0-20220304113225-5745e90aa4ba // indirect
 	github.com/go-redis/redis v6.15.9+incompatible // indirect
+	github.com/lib/pq v1.10.5 // indirect
 )

@@ -413,3 +413,18 @@ type GetLastMessagesRequest struct {
 	Amount int    `json:"amount"`
 	Offset int    `json:"offset"`
 }
+
+func NewGetLastMessagesRequest(jsonBytes []byte) *GetLastMessagesRequest {
+	r := new(GetLastMessagesRequest)
+	json.Unmarshal(jsonBytes, r)
+	return r
+}
+
+func (r *GetLastMessagesRequest) JsonBytes() []byte {
+	jsonBytes, _ := json.Marshal(*r)
+	return jsonBytes
+}
+
+func (r *GetLastMessagesRequest) JsonString() string {
+	return string(r.JsonBytes())
+}

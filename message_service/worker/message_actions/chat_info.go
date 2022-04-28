@@ -36,14 +36,17 @@ func ChatInfo(chatInfoRequest requests.Request) requests.Response {
 	response := requests.ChatInfoResponse{make([]requests.ChatInfo, 0, len(req.ChatIds))}
 	for rows.Next() {
 		var chatInfo requests.ChatInfo
-		rows.Scan(
+		if err := rows.Scan(
 			&chatInfo.Id,
 			&chatInfo.Name,
 			&chatInfo.AvatarUrl,
 			&chatInfo.IsPublic,
 			&chatInfo.Members,
 			&chatInfo.AdminId,
-		)
+		); err != nil {
+			log.Println(err)
+			return requests.NewEmptyResponse(http.StatusInternalServerError)
+		}
 		response.Chats = append(response.Chats, chatInfo)
 	}
 	return response

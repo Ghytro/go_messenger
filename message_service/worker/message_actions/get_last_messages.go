@@ -1,6 +1,8 @@
 package message_actions
 
 import (
+	"context"
+	"database/sql"
 	"fmt"
 	"log"
 	"net/http"
@@ -20,14 +22,43 @@ func GetLastMessages(getLastMessagesRequest requests.Request) requests.Response 
 		return requests.NewErrorResponse(errors.InvalidAccessTokenError())
 	}
 	userId, _ := rdbGet.Int()
+	fmt.Println(userId)
 
 	if req.Amount < 0 || req.Offset < 0 {
 		return requests.NewEmptyResponse(http.StatusBadRequest)
 	}
+	if req.Amount == 0 {
+		fmt.Println("amount 0")
+		return &requests.GetLastMessagesResponse{
+			ChatId:   req.ChatId,
+			Messages: make([]requests.Message, 0),
+		}
+	}
 
-	messagesTable := fmt.Sprint("messages_%d", req.ChatId)
+	ctx := context.Background()
+	tx, err := messageDataDB.BeginTx(ctx, nil)
+	if err != nil {
+		log.Println(err)
+		return requests.NewEmptyResponse(http.StatusInternalServerError)
+	}
+	defer tx.Rollback()
 
-	rows, err := messageDataDB.Query(
+	if err := messageDataDB.QueryRowContext(
+		ctx,
+		"SELECT id FROM chat_data WHERE id = $1 AND (is_public = TRUE OR $2 = ANY(members))",
+		req.ChatId,
+		userId,
+	).Err(); err != nil {
+		if err == sql.ErrNoRows {
+			return requests.NewErrorResponse(errors.UnableToGetMessagesError())
+		}
+		log.Println(err)
+		return requests.NewEmptyResponse(http.StatusInternalServerError)
+	}
+
+	messagesTable := fmt.Sprintf("messages_%d", req.ChatId)
+	rows, err := tx.QueryContext(
+		ctx,
 		fmt.Sprintf(
 			"SELECT * FROM %s ORDER BY id DESC LIMIT $1 OFFSET $2",
 			messagesTable,
@@ -36,10 +67,6 @@ func GetLastMessages(getLastMessagesRequest requests.Request) requests.Response 
 		req.Offset,
 	)
 	if err != nil {
-		pqErr := err.(*pq.Error)
-		if pqErr.Code == "" { // find out what the error code is
-			return requests.NewErrorResponse(errors.InvalidChatIdError())
-		}
 		log.Println(err)
 		return requests.NewEmptyResponse(http.StatusInternalServerError)
 	}
@@ -50,16 +77,23 @@ func GetLastMessages(getLastMessagesRequest requests.Request) requests.Response 
 	for rows.Next() {
 		var m requests.Message
 		var timestamp time.Time
-		rows.Scan(
+		if err := rows.Scan(
 			&m.Id,
 			&m.SenderId,
 			&m.MessageText,
 			pq.Array(&m.Attachments),
-			&m.ParentMessage,
 			&timestamp,
-		)
+			&m.ParentMessage,
+		); err != nil {
+			log.Println(err)
+			return requests.NewEmptyResponse(http.StatusInternalServerError)
+		}
 		m.Timestamp = timestamp.Unix()
 		response.Messages = append(response.Messages, m)
+	}
+	if err := tx.Commit(); err != nil {
+		log.Println(err)
+		return requests.NewEmptyResponse(http.StatusInternalServerError)
 	}
 	return response
 }

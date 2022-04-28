@@ -18,6 +18,7 @@ var HandlerMap = map[string]func(requests.Request) requests.Response{
 	"/chat_info":           message_actions.ChatInfo,
 	"/send_message":        message_actions.SendMessage,
 	"/delete_message":      message_actions.DeleteMessage,
+	"/get_last_messages":   message_actions.GetLastMessages,
 }
 
 var RequestGeneratorMap = map[string]func([]byte) requests.Request{
@@ -47,6 +48,9 @@ var RequestGeneratorMap = map[string]func([]byte) requests.Request{
 	},
 	"/delete_message": func(jb []byte) requests.Request {
 		return requests.NewDeleteMessageRequest(jb)
+	},
+	"/get_last_messages": func(jb []byte) requests.Request {
+		return requests.NewGetLastMessagesRequest(jb)
 	},
 }
 

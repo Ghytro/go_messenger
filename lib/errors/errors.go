@@ -26,6 +26,9 @@ const (
 	UnableToSendMessageErrorCode
 	EmptyMessageErrorCode
 	InvalidChatIdErrorCode
+	UnableToGetMessagesErrorCode
+	NegativeOffsetValueErrorCode
+	NegativeAmountValueErrorCode
 )
 
 type Error struct {
@@ -196,5 +199,29 @@ func InvalidChatIdError() Error {
 		Code:           InvalidChatIdErrorCode,
 		httpStatusCode: http.StatusBadRequest,
 		Message:        "Invalid chat id",
+	}
+}
+
+func UnableToGetMessagesError() Error {
+	return Error{
+		Code:           UnableToGetMessagesErrorCode,
+		httpStatusCode: http.StatusForbidden,
+		Message:        "Unable to get access to the chat",
+	}
+}
+
+func NegativeOffsetValueError() Error {
+	return Error{
+		Code:           NegativeOffsetValueErrorCode,
+		httpStatusCode: http.StatusBadRequest,
+		Message:        "Offset value cannot be negative",
+	}
+}
+
+func NegativeAmountValueError() Error {
+	return Error{
+		Code:           NegativeAmountValueErrorCode,
+		httpStatusCode: http.StatusBadRequest,
+		Message:        "Amount value cannot be negative",
 	}
 }

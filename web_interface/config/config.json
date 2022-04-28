@@ -21,6 +21,7 @@
         "/ban_user",
         "/chat_info",
         "/send_message",
-        "/delete_message"
+        "/delete_message",
+        "/get_last_messages"
     ]
 }
