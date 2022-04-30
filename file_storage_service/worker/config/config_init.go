@@ -8,6 +8,7 @@ import (
 
 type FileStorageServiceWorkerConfig struct {
 	RedisTokenValidationAddr string `json:"redis_token_validation_addr"`
+	InstanceAddr             string `json:"instance_addr"`
 }
 
 var Config = new(FileStorageServiceWorkerConfig)

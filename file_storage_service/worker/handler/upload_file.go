@@ -48,6 +48,17 @@ func UploadFile(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
+	if _, err := fileDataDB.Exec(
+		`INSERT INTO
+		file_storages (name, storage_addr)
+		VALUES ($1, $2)`,
+		fileName,
+		Config.InstanceAddr,
+	); err != nil {
+		log.Println(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 	io.Copy(file, r.Body)
 	w.Write([]byte(fileName))
 	w.WriteHeader(http.StatusOK)
