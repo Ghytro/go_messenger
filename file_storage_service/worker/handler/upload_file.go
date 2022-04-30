@@ -26,23 +26,16 @@ func UploadFile(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	extension, token := r.Header.Get("X-File-Extension"), r.Header.Get("X-Access-Token")
-	if extension == "" || token == "" || len(extension) > 10 || !ValidateToken(token) {
+	contentType, token := r.Header.Get("Content-Type"), r.Header.Get("X-Access-Token")
+	if extension == "" || token == "" || !ValidateToken(token) {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	extension = strings.ToLower(extension)
-	for _, c := range extension {
-		if c < 'a' || c > 'z' {
-			w.WriteHeader(http.StatusBadRequest)
-			return
-		}
+	fileId := GenerateFileId()
+	for _, err := os.Stat("files/" + fileId); !errors.Is(err, os.ErrNotExist); _, err = os.Stat("files/" + fileId) {
+		fileId = GenerateFileId()
 	}
-	fileName := GenerateFileId() + "." + extension
-	for _, err := os.Stat("files/" + fileName); !errors.Is(err, os.ErrNotExist); _, err = os.Stat("files/" + fileName) {
-		fileName = GenerateFileId() + "." + extension
-	}
-	file, err := os.Create(fileName)
+	file, err := os.Create(fileId)
 	if err != nil {
 		log.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)
@@ -50,16 +43,17 @@ func UploadFile(w http.ResponseWriter, r *http.Request) {
 	}
 	if _, err := fileDataDB.Exec(
 		`INSERT INTO
-		file_storages (name, storage_addr)
-		VALUES ($1, $2)`,
-		fileName,
+		file_storages (name, storage_addr, content_type)
+		VALUES ($1, $2, $3)`,
+		fileId,
 		Config.InstanceAddr,
+		contentType,
 	); err != nil {
 		log.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 	io.Copy(file, r.Body)
-	w.Write([]byte(fileName))
+	w.Write([]byte(fileId))
 	w.WriteHeader(http.StatusOK)
 }

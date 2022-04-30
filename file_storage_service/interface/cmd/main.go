@@ -4,11 +4,11 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/Ghytro/go_messenger/file_storage_service/worker/handler"
+	"github.com/Ghytro/go_messenger/file_storage_service/interface/handler"
 )
 
 func main() {
 	http.HandleFunc("/file/", handler.GetFile)
 	http.HandleFunc("/upload_file", handler.UploadFile)
-	log.Println(http.ListenAndServe(":8076", nil))
+	log.Println(http.ListenAndServe(":8077", nil))
 }
