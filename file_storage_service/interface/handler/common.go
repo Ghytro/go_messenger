@@ -10,7 +10,7 @@ import (
 )
 
 var fileDataDB *sql.DB
-var counter = NewAtomicCounter(len(config.Config.StoragesAddrs))
+var counter = NewAtomicCounter(len(config.Config.StoragesAddrs) - 1)
 
 type AtomicCounter struct {
 	value    int

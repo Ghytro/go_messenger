@@ -86,9 +86,6 @@ func CreateUser(createUserRequest requests.Request) requests.Response {
 	}
 	defer tx.Rollback()
 
-	_, err = tx.ExecContext(ctx,
-		`SAVEPOINT sp`,
-	)
 	if err != nil {
 		log.Println(err)
 		return requests.NewEmptyResponse(http.StatusInternalServerError)
@@ -115,9 +112,6 @@ func CreateUser(createUserRequest requests.Request) requests.Response {
 				token = generateAccessToken()
 			}
 		}
-		_, err = tx.ExecContext(ctx,
-			`ROLLBACK TO SAVEPOINT sp`,
-		)
 		if err != nil {
 			log.Println(err)
 			return requests.NewEmptyResponse(http.StatusInternalServerError)
@@ -132,8 +126,8 @@ func CreateUser(createUserRequest requests.Request) requests.Response {
 			token,
 		)
 	}
-	_, err = tx.ExecContext(ctx, "RELEASE SAVEPOINT sp")
-	if err != nil {
+	var newUserId int
+	if err := row.Scan(&newUserId); err != nil {
 		log.Println(err)
 		return requests.NewEmptyResponse(http.StatusInternalServerError)
 	}
@@ -141,8 +135,6 @@ func CreateUser(createUserRequest requests.Request) requests.Response {
 		log.Println(err)
 		return requests.NewEmptyResponse(http.StatusInternalServerError)
 	}
-	var newUserId int
-	row.Scan(&newUserId)
 	redisClient.Set(token, newUserId, 0)
 	return requests.NewCreateUserResponse(token)
 }

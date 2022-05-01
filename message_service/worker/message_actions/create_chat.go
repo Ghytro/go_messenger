@@ -98,5 +98,5 @@ func CreateChat(createChatRequest requests.Request) requests.Response {
 		log.Println(err)
 		return requests.NewEmptyResponse(http.StatusInternalServerError)
 	}
-	return requests.NewEmptyResponse(http.StatusOK)
+	return &requests.CreateChatResponse{createdChatId}
 }

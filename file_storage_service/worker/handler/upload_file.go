@@ -38,8 +38,12 @@ func UploadFile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	fileId := GenerateFileId()
-	for _, err := os.Stat("../files/" + fileId); !errors.Is(err, os.ErrNotExist); _, err = os.Stat("../files/" + fileId) {
-		fileId = GenerateFileId()
+	if _, err := os.Stat("../files"); os.IsNotExist(err) {
+		os.Mkdir("../files", 0750)
+	} else {
+		for _, err := os.Stat("../files/" + fileId); !errors.Is(err, os.ErrNotExist); _, err = os.Stat("../files/" + fileId) {
+			fileId = GenerateFileId()
+		}
 	}
 	file, err := os.Create("../files/" + fileId)
 	if err != nil {
