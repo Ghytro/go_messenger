@@ -2,26 +2,42 @@ package handler
 
 import (
 	"database/sql"
+	"fmt"
 	"net/http"
-	"strings"
 )
 
 func GetFile(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "GET" {
+		fmt.Println("here0")
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	path := r.URL.Path
-	if strings.HasSuffix(path, "/") {
-		path = path[:len(path)-1]
+	fileIdValues, ok := r.URL.Query()["id"]
+	if !ok || len(fileIdValues) != 1 {
+		fmt.Println("here")
+		w.WriteHeader(http.StatusBadRequest)
+		return
 	}
-	fileId := path[strings.LastIndex(path, "/")+1:]
-	var storageAddr string
-	if err := fileDataDb.QueryRow("SELECT storage_addr FROM file_storages WHERE id = $1", fileId).Scan(&storageAddr); err != nil {
-		if err == sql.ErrNoRows {
+	fileId := fileIdValues[0]
+	if len(fileId) != 30 {
+		fmt.Println("here1")
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	for _, c := range fileId {
+		if !((c >= 'a' && c <= 'z') || (c >= '0' && c <= '9')) {
+			fmt.Println("here1337")
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
 	}
-	http.Redirect(w, r, storageAddr+"/file/"+fileId, http.StatusTemporaryRedirect)
+	var storageAddr string
+	if err := fileDataDB.QueryRow("SELECT storage_addr FROM file_storages WHERE id = $1", fileId).Scan(&storageAddr); err != nil {
+		if err == sql.ErrNoRows {
+			fmt.Println("here2")
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+	}
+	http.Redirect(w, r, storageAddr+"/file?id="+fileId, http.StatusTemporaryRedirect)
 }

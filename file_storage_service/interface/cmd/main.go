@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-	http.HandleFunc("/file/", handler.GetFile)
+	http.HandleFunc("/file", handler.GetFile)
 	http.HandleFunc("/upload_file", handler.UploadFile)
 	log.Println(http.ListenAndServe(":8077", nil))
 }

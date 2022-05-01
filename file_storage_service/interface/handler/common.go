@@ -5,6 +5,7 @@ import (
 	"log"
 	"sync"
 
+	"github.com/Ghytro/go_messenger/file_storage_service/interface/config"
 	_ "github.com/lib/pq"
 )
 

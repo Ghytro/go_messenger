@@ -8,6 +8,8 @@ import (
 	"net/http"
 	"os"
 	"strings"
+
+	"github.com/Ghytro/go_messenger/file_storage_service/worker/config"
 )
 
 const allowedFileIdSymbols = "0123456789qwertyuiopasdfghjklzxcvbnm"
@@ -27,15 +29,19 @@ func UploadFile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	contentType, token := r.Header.Get("Content-Type"), r.Header.Get("X-Access-Token")
-	if extension == "" || token == "" || !ValidateToken(token) {
+	if contentType == "" || token == "" {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
+	if !ValidateToken(token) {
+		w.WriteHeader(http.StatusUnauthorized)
+		return
+	}
 	fileId := GenerateFileId()
-	for _, err := os.Stat("files/" + fileId); !errors.Is(err, os.ErrNotExist); _, err = os.Stat("files/" + fileId) {
+	for _, err := os.Stat("../files/" + fileId); !errors.Is(err, os.ErrNotExist); _, err = os.Stat("../files/" + fileId) {
 		fileId = GenerateFileId()
 	}
-	file, err := os.Create(fileId)
+	file, err := os.Create("../files/" + fileId)
 	if err != nil {
 		log.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)
@@ -43,10 +49,10 @@ func UploadFile(w http.ResponseWriter, r *http.Request) {
 	}
 	if _, err := fileDataDB.Exec(
 		`INSERT INTO
-		file_storages (name, storage_addr, content_type)
+		file_storages (id, storage_addr, content_type)
 		VALUES ($1, $2, $3)`,
 		fileId,
-		Config.InstanceAddr,
+		config.Config.InstanceAddr,
 		contentType,
 	); err != nil {
 		log.Println(err)
