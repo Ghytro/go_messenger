@@ -44,7 +44,7 @@ mservice_interface: mservice_interface_dir
 	cd message_service\interface\cmd && go build -o ../../../build/message_service/interface/cmd/
 	copy message_service\interface\config\config.json build\message_service\interface\config\config.json
 
-mservice_worker: mservice_interface_dir
+mservice_worker: mservice_worker_dir
 	cd message_service\worker\cmd && go build -o ../../../build/message_service/worker/cmd/
 	copy message_service\worker\config\config.json build\message_service\worker\config\config.json
 
@@ -69,8 +69,8 @@ fservice_interface: fservice_interface_dir
 	cd file_storage_service\interface\cmd && go build -o ../../../build/file_storage_service/interface/cmd/
 	copy file_storage_service\interface\config\config.json build\file_storage_service\interface\config\config.json
 
-fservice_worker: fservice_interface_dir
-	cd file_storage_service\worker\cmd && go build -o build/file_storage_service/worker/cmd/
+fservice_worker: fservice_worker_dir
+	cd file_storage_service\worker\cmd && go build -o ../../../build/file_storage_service/worker/cmd/
 	copy file_storage_service\worker\config\config.json build\file_storage_service\worker\config\config.json
 
 fservice_interface_dir: file_storage_service_dir
