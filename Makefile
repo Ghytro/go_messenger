@@ -1,6 +1,10 @@
 # This makefile is needed to build all the executables and run the server on single machine.
 # More advanced script needed to wrap all the executables in docker and send them to remote machines, for example.
+run_backend: all
+	
+
 all: web_interface user_service message_service file_storage_service notification_service
+
 
 # Building web interface
 web_interface: web_interface_dir
