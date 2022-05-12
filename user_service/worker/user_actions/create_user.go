@@ -2,6 +2,7 @@ package user_actions
 
 import (
 	"context"
+	"database/sql"
 	"log"
 	"math/rand"
 	"net/http"
@@ -10,7 +11,6 @@ import (
 
 	"github.com/Ghytro/go_messenger/lib/errors"
 	"github.com/Ghytro/go_messenger/lib/requests"
-	"github.com/lib/pq"
 )
 
 var allowedTokenSymbols = "0123456789qwertyuiopasdfghjklzxcvbnm"
@@ -90,44 +90,55 @@ func CreateUser(createUserRequest requests.Request) requests.Response {
 		log.Println(err)
 		return requests.NewEmptyResponse(http.StatusInternalServerError)
 	}
-	row := tx.QueryRowContext(ctx,
-		`INSERT INTO users (username, email, password_md5_hash, access_token)
-		VALUES ($1, $2, $3, $4)
+	var dbUsername, dbEmail, dbAccessToken string
+	err = tx.QueryRowContext(
+		ctx,
+		`SELECT username, email, access_token
+		FROM users WHERE username = $1 OR
+		email = $2 OR
+		access_token = $3`,
+		req.Username,
+		req.Email,
+		token,
+	).Scan(&dbUsername, &dbEmail, &dbAccessToken)
+	if err != nil && err != sql.ErrNoRows {
+		log.Println(err)
+		return requests.NewEmptyResponse(http.StatusInternalServerError)
+	}
+	for err == nil {
+		if dbUsername == req.Username {
+			return requests.NewErrorResponse(errors.UsernameAlreadyTakenError())
+		}
+		if dbEmail == req.Email {
+			return requests.NewErrorResponse(errors.EmailAlreadyRegisteredError())
+		}
+		if dbAccessToken == token {
+			token = generateAccessToken()
+		}
+		err = tx.QueryRowContext(
+			ctx,
+			`SELECT username, email, access_token
+			FROM users WHERE username = $1 OR
+			email = $2 OR
+			access_token = $3`,
+			req.Username,
+			req.Email,
+			token,
+		).Scan(&dbUsername, &dbEmail, &dbAccessToken)
+	}
+	var newUserId int
+	if err := tx.QueryRowContext(
+		ctx,
+		`INSERT INTO users
+		(username, email, password_md5_hash, access_token)
+		VALUES
+		($1, $2, $3, $4)
 		RETURNING id`,
 		req.Username,
 		req.Email,
 		req.PasswordMD5Hash,
 		token,
-	)
-	for err := row.Err(); err != nil; err = row.Err() {
-		log.Println(err) // debug
-		pqErr := err.(*pq.Error)
-		if pqErr.Code == "23505" { // unique constraint violation
-			switch pqErr.Constraint {
-			case "users_username_key":
-				return requests.NewErrorResponse(errors.UsernameAlreadyTakenError())
-			case "users_email_key":
-				return requests.NewErrorResponse(errors.EmailAlreadyRegisteredError())
-			case "users_access_token_key":
-				token = generateAccessToken()
-			}
-		}
-		if err != nil {
-			log.Println(err)
-			return requests.NewEmptyResponse(http.StatusInternalServerError)
-		}
-		row = tx.QueryRowContext(ctx, `
-		INSERT INTO users (username, email, password_md5_hash, access_token)
-		VALUES ($1, $2, $3, $4)
-		RETURNING id`,
-			req.Username,
-			req.Email,
-			req.PasswordMD5Hash,
-			token,
-		)
-	}
-	var newUserId int
-	if err := row.Scan(&newUserId); err != nil {
+	).Scan(&newUserId); err != nil {
 		log.Println(err)
 		return requests.NewEmptyResponse(http.StatusInternalServerError)
 	}
