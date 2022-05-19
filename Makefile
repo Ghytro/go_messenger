@@ -3,7 +3,7 @@
 run_backend: all
 	
 
-all: web_interface user_service message_service file_storage_service notification_service
+all: web_interface user_service message_service file_storage_service notification_service tools
 
 
 # Building web interface
@@ -100,6 +100,23 @@ notification_service_dir: build_dir
 	-echo y | rmdir /s build\notification_service
 	mkdir build\notification_service
 	mkdir build\notification_service\cmd build\notification_service\config
+
+tools: redis_filler test_redis
+
+redis_filler: tools_dir
+	-echo y | rmdir /s build\tools\redis_filler
+	mkdir build\tools\redis_filler
+	cd tools\redis_filler && go build ../../build/tools/redis_filler/
+
+test_redis: tools_dir
+	-echo y | rmdir /s build\tools\test_redis
+	mkdir build\tools\test_redis
+	cd tools\test_redis && go build ../../build/tools/test_redis/
+
+tools_dir: build_dir
+	-echo y | rmdir /s build\tools
+	mkdir build\tools
+	
 
 build_dir:
 	-echo y | rmdir /s build
