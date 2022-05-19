@@ -1,10 +1,17 @@
 # This makefile is needed to build all the executables and run the server on single machine.
 # More advanced script needed to wrap all the executables in docker and send them to remote machines, for example.
+
 run_backend: all
-	
+	start /d build\web_interface\cmd build\web_interface\cmd\cmd.exe & \
+	start /d build\user_service\interface\cmd build\user_service\interface\cmd\cmd.exe & \
+	start /d build\user_service\worker\cmd build\user_service\worker\cmd\cmd.exe & \
+	start /d build\message_service\interface\cmd build\message_service\interface\cmd\cmd.exe & \
+	start /d build\message_service\worker\cmd build\message_service\worker\cmd\cmd.exe & \
+	start /d build\notification_service\cmd build\notification_service\cmd\cmd.exe & \
+	start /d build\file_storage_service\interface\cmd build\file_storage_service\interface\cmd\cmd.exe & \
+	start /d build\file_storage_service\worker\cmd build\file_storage_service\worker\cmd\cmd.exe
 
 all: web_interface user_service message_service file_storage_service notification_service tools
-
 
 # Building web interface
 web_interface: web_interface_dir
@@ -92,8 +99,8 @@ file_storage_service_dir: build_dir
 	mkdir build\file_storage_service
 
 # Building notification service
-notificaton_service: notification_service_dir
-	cd notification_service\cmd && go build -o ../../../build/notification_service/cmd/
+notification_service: notification_service_dir
+	cd notification_service\cmd && go build -o ../../build/notification_service/cmd/
 	copy notification_service\config\config.json build\notification_service\config\config.json
 
 notification_service_dir: build_dir
